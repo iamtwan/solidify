@@ -6,7 +6,7 @@ import { CSVLink } from 'react-csv';
 
 export default function Home() {
   const [inputValue, setInputValue] = useState('https://api.spotify.com/v1/playlists/4pUmha8MJtm7RQBEETaSaI');
-  const [csvData, setCsvData] = useState([]);
+  const [csvData, setCsvData] = useState<string[][]>([]);
 
   const client_id = 'a75a997107f84884b379d97ac220c3f1';
   const client_secret = '4c6f998a4cd64603a77b4c783f732dcc';
@@ -51,8 +51,14 @@ export default function Home() {
         tracks.push(track);
       }
 
-      const csvData = [['Name', data.name], ['Total', data.tracks.total], ['Track Name', 'Album Name', 'Artist Names'], ...tracks];
-      setCsvData(csvData);
+      const csvInfo = [
+        ['Name', data.name], 
+        ['Total', data.tracks.total], 
+        ['Track Name', 'Album Name', 'Artist Names'], 
+        ...tracks
+      ];
+
+      setCsvData(csvInfo);
     } catch (error) {
       console.error('Error: ', error);
     }
