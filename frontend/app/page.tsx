@@ -65,6 +65,20 @@ export default function Home() {
 
   }
 
+  const test = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/v1/playlists/all`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('jw-token')}`
+        }
+      });
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <main className={styles.main}>
       <div>
@@ -74,6 +88,7 @@ export default function Home() {
         </form>
         <CSVLink data={csvData}>Download</CSVLink>
         <button onClick={login}>Login</button>
+        <button onClick={test}>Test</button>
       </div>
     </main>
   )
