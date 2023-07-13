@@ -3,9 +3,10 @@
 import PlaylistInterface from '../PlaylistInterface';
 import styles from './playlist.module.css';
 import playlistsStyles from '../Playlists/playlists.module.css';
-import ReactLoading from 'react-loading';
 import { downloadPlaylist} from '@/services/api';
 import { Tooltip } from 'react-tooltip'
+import DownloadButton from '../DownloadButton';
+import UploadButton from '../UploadButton';
 
 export default function Playlist({ playlist, checked, isUploading, handleCheckboxChange, upload }: {
     playlist: PlaylistInterface,
@@ -29,22 +30,8 @@ export default function Playlist({ playlist, checked, isUploading, handleCheckbo
     </label>
 
     <div className={styles['upload-download']}>
-      <span 
-        className={playlistsStyles.download} 
-        onClick={() => download(playlist.id)} 
-        data-tooltip-id='download' 
-        data-tooltip-content='Download'>
-          download
-      </span>
-      <Tooltip id="download" />
-      <span 
-        className={playlistsStyles.upload} 
-        onClick={() => upload(playlist.id)}
-        data-tooltip-id='upload' 
-        data-tooltip-content='Upload'>
-          {isUploading ? <ReactLoading type='spin' color='grey' width={24} height={24} /> : 'upload'}
-        </span>
-        <Tooltip id="upload" />
+      <DownloadButton onClick={() => download(playlist.id)} />
+      <UploadButton onClick={() => upload(playlist.id)} isUploading={isUploading} />
     </div>
   </div>
 }
