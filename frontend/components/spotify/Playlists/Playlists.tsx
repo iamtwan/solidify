@@ -36,7 +36,7 @@ export default function Playlists({ googleToken }: {
   }
   }, [data]);
 
-  useEffect(() => {    
+  useEffect(() => {  
     const uploadPlaylists = async () => {
       for (let id of playlistsToUpload) {
         try {
@@ -92,8 +92,10 @@ export default function Playlists({ googleToken }: {
 
   const upload = async (id: string) => {
     try {
+      setPlaylistsToUpload([...playlistsToUpload, id]);
       setPlaylistIsUploading(id, true);
       await uploadPlaylist(id);
+      setPlaylistIsUploading(id, false);
     } catch (error) {
       console.log(error);
 
@@ -108,13 +110,8 @@ export default function Playlists({ googleToken }: {
   }
 
   const uploadSelected = async () => {
-    const playlists = [];
-
     for (const [id, playlistInfo] of Object.entries(checkedPlaylists)) {
       if (!playlistInfo.checked) continue;
-
-      playlists.push(id);
-      setPlaylistsToUpload(playlists);
       await upload(id);
     }
   }

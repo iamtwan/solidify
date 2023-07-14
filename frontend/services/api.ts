@@ -70,10 +70,12 @@ export const downloadPlaylist = async (id: string, isPrivate: boolean) => {
 export const uploadPlaylist = async (id: string) => {
     await fetchItems(id, true);
 
+    console.log(localStorage.getItem('google_token'));
+
     const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('google-token')}`
+        'Authorization': `Bearer ${localStorage.getItem('google_token')}`
       }
     });
 
