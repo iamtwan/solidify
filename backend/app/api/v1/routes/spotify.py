@@ -15,7 +15,7 @@ router = APIRouter()
 @router.get('/playlists/all', response_model=AllPlaylistsResponse, tags=['Spotify'])
 def get_all_playlists(
     offset: int = 0,
-    limit: int = 1,
+    limit: int = 20,
     spotify_service: SpotifyService = Depends(get_user_spotify_service)
 ):
     all_playlists, next_link = spotify_service.get_all_playlists(offset, limit)

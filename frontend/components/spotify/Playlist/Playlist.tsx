@@ -3,6 +3,7 @@
 import PlaylistInterface from '../PlaylistInterface';
 import styles from './playlist.module.css';
 import playlistsStyles from '../Playlists/playlists.module.css';
+import ReactLoading from 'react-loading';
 
 export default function Playlist({ playlist, checked, isUploading, handleCheckboxChange }: {
     playlist: PlaylistInterface,
@@ -18,7 +19,7 @@ export default function Playlist({ playlist, checked, isUploading, handleCheckbo
 
     <div className={styles['upload-download']}>
       <span className={playlistsStyles.download}>download</span>
-      <span className={playlistsStyles.upload}>upload</span>
+      <span className={playlistsStyles.upload}>{isUploading ? <ReactLoading type='spin' color='grey' width={24} height={24} /> : 'upload'}</span>
     </div>
   </div>
 }
