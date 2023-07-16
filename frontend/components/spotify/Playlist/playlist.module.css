@@ -7,7 +7,6 @@
 
 .playlist-label {
   display: flex;
-  justify-content: center;
   align-items: center;
   align-self: flex-start;
 }
@@ -17,7 +16,7 @@
   font-family: 'Roboto';
   font-size: 14px;
   font-weight: 700;
-  max-width: 400px;
+  width: 400px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -25,4 +24,16 @@
 
 .upload-download {
   align-self: flex-end;
+}
+
+@media screen and (max-width: 500px) {
+  .playlist-name {
+    max-width: 300px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .playlist-name {
+    max-width: 200px;
+  }
 }

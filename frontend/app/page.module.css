@@ -8,12 +8,15 @@
 .playlist-form {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   gap: 10px;
   margin-bottom: 50px;
+  width: 100%;
 }
 
 .input-field {
+  align-self: center;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -31,8 +34,18 @@
   cursor: pointer;
 }
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 500px) {
   .download-title {
     font-size: 20px;
+  }
+}
+
+@media screen and (max-width: 350px) {
+  .download-title {
+    font-size: 18px;
+  }
+
+  .input-field {
+    width: 250px;
   }
 }

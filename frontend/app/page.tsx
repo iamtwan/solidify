@@ -66,8 +66,8 @@ export default function Page() {
           <button type='submit' className={styles['download-button']}>Download</button>
         </form>
       </div>
-
-        <Playlists googleToken={prevGoogleKey}/>
+            
+      <Playlists googleToken={prevGoogleKey}/>
     </main>
   )
 }
