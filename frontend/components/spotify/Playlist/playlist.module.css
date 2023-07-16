@@ -17,6 +17,10 @@
   font-family: 'Roboto';
   font-size: 14px;
   font-weight: 700;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .upload-download {
