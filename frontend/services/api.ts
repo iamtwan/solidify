@@ -16,7 +16,7 @@ const fetcher = async (url: string, { arg } : { arg: string }) => {
 }
 
 export const fetchPlaylists = (mounted: boolean) => {
-    const accessToken = localStorage.getItem('spotify_token') || '';
+    const accessToken = (mounted && localStorage.getItem('spotify_token')) || '';
 
     const { data, error, isLoading } = useSWRImmutable(mounted ? 'http://127.0.0.1:8000/v1/spotify/all' : null, 
     url => fetcher(url, { arg: accessToken} ));

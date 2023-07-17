@@ -4,7 +4,7 @@ import styles from './page.module.css';
 import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import HowItWorks from '@/components/howitworks/HowItWorks';
 import Playlists from '@/components/spotify/Playlists/Playlists';
-import { mutatePlaylists, downloadPlaylist, login } from '@/services/api';
+import { mutatePlaylists, downloadPlaylist } from '@/services/api';
 
 export default function Page() {
   const [inputValue, setInputValue] = useState('');
