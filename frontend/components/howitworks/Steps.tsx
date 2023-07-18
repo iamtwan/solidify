@@ -5,7 +5,7 @@ export default function Steps({ title, text }: {
   text: string
 }) {
   return <div className={styles['steps-container']}>
-    <h6 className={styles['steps-title']}>{title}</h6>
+    <h4 className={styles['steps-title']}>{title}</h4>
     <p className={styles['steps-text']}>{text}</p>
   </div>
 }
