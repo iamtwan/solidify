@@ -163,7 +163,9 @@ export default function Playlists({ googleToken }: {
         </div>
       </div>
       
-      {error ? <button onClick={spotifyLogin}>Spotify login</button> : isLoading ? <div>Loading...</div> : data.playlists.map((playlist: PlaylistInterface) => {
+      {error ? <button className={styles['login-button']} onClick={spotifyLogin}>Spotify login</button> : isLoading ? 
+      <div className={styles['login-button']}>Loading...</div> : 
+      data.playlists.map((playlist: PlaylistInterface) => {
         const checked = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked) || false;
         const isUploading = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading) || false;
 
