@@ -7,7 +7,7 @@ import Playlists from '@/components/spotify/Playlists/Playlists';
 import { mutatePlaylists, downloadPlaylist, login } from '@/services/api';
 
 export default function Page() {
-  const [inputValue, setInputValue] = useState('4pUmha8MJtm7RQBEETaSaI');
+  const [inputValue, setInputValue] = useState('');
 
   const [prevSpotifyKey, setPrevSpotifyKey] = useState('');
   const [prevGoogleKey, setPrevGoogleKey] = useState('');
@@ -43,13 +43,14 @@ export default function Page() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${inputValue}`);
+      const url = new URL(inputValue);
+      const playlistId = url.pathname.split("/").pop();
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch playlist");
+      if (url.hostname !== 'open.spotify.com' || !playlistId) {
+        throw new Error('Invalid domain name');
       }
 
-      await downloadPlaylist(inputValue, false);
+      await downloadPlaylist(playlistId, false);
     } catch (error) {
       console.error('Error: ', error);
     }
