@@ -68,6 +68,12 @@
 }
 
 .playlists-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.playlists-inner-container {
   width: 500px;
 }
 

@@ -3,7 +3,7 @@ import Steps from './Steps';
 
 export default function HowItWorks() {
   return <div className={styles['howitworks-container']}>
-    <h3>How It Works</h3>
+    <h2>How It Works</h2>
 
     <div className={styles.row}>
       <Steps title='Step 1' text='testing 123'/>

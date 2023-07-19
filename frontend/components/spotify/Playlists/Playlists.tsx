@@ -153,26 +153,27 @@ export default function Playlists({ googleToken }: {
   const spotifyLogin = () => login('http://127.0.0.1:8000/v1/auth/spotify/login');
 
   return <div className={styles['playlists-container']}>
-    <div className={styles['playlists-options']}>
-      <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
-    
-      <div className={playlistStyles['upload-download']}>
-        <span onClick={downloadSelected} className={styles.download}>download</span>
-        <span onClick={uploadSelected} className={styles.upload}>upload</span>
+    <div className={styles['playlists-inner-container']}>
+      <div className={styles['playlists-options']}>
+        <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
+      
+        <div className={playlistStyles['upload-download']}>
+          <span onClick={downloadSelected} className={styles.download}>download</span>
+          <span onClick={uploadSelected} className={styles.upload}>upload</span>
+        </div>
       </div>
-    </div>
-    
-    {error ? <button onClick={spotifyLogin}>Spotify login</button> : isLoading ? <div>Loading...</div> : data.playlists.map((playlist: PlaylistInterface) => {
-      const checked = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked) || false;
-      const isUploading = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading) || false;
+      
+      {error ? <button onClick={spotifyLogin}>Spotify login</button> : isLoading ? <div>Loading...</div> : data.playlists.map((playlist: PlaylistInterface) => {
+        const checked = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked) || false;
+        const isUploading = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading) || false;
 
-      return <Playlist key={playlist.id} 
-        playlist={playlist} 
-        checked={checked}
-        isUploading={isUploading}
-        handleCheckboxChange={handleCheckboxChange}
-      /> 
-  })}
-  
+        return <Playlist key={playlist.id} 
+          playlist={playlist} 
+          checked={checked}
+          isUploading={isUploading}
+          handleCheckboxChange={handleCheckboxChange}
+        /> 
+    })}
+    </div>
   </div>
 }
