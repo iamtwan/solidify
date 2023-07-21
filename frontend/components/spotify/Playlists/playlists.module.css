@@ -29,14 +29,15 @@
   margin: 0px 5px 0px 5px;
 
   font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 48
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 48;
 }
 
 .download:hover {
-  cursor: pointer
+  cursor: pointer;
+  background-color: #e0e0e0; /* Change this to the desired background color */
 }
 
 .upload {
@@ -63,6 +64,7 @@
 
 .upload:hover {
   cursor: pointer;
+  background-color: #e0e0e0; /* Change this to the desired background color */
 }
 
 .playlists-container {

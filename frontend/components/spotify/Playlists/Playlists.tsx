@@ -3,7 +3,7 @@
 import Playlist from "../Playlist/Playlist";
 import PlaylistInterface from "../PlaylistInterface";
 import { useState, useEffect } from "react";
-import { fetchPlaylists, downloadPlaylist, login } from "@/services/api";
+import { fetchPlaylists, downloadPlaylist, uploadPlaylist, login } from "@/services/api";
 import styles from './playlists.module.css';
 import playlistStyles from '../Playlist/playlist.module.css';
 
@@ -88,23 +88,6 @@ export default function Playlists({ googleToken }: {
     }
   }
 
-  const uploadPlaylist = async (id: string) => {
-      await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`); // used to cache playlist in redis
-
-      const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${googleToken}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload playlist with id: ' + id);
-      }
-
-      console.log('uploaded playlist with id: ' + id);
-  }
-
   const uploadSelected = async () => {
     const playlists = [];
 
@@ -174,8 +157,8 @@ export default function Playlists({ googleToken }: {
       <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
     
       <div className={playlistStyles['upload-download']}>
-        <span className={styles.download}>download</span>
-        <span className={styles.upload}>upload</span>
+        <span onClick={downloadSelected} className={styles.download}>download</span>
+        <span onClick={uploadSelected} className={styles.upload}>upload</span>
       </div>
     </div>
     

@@ -67,6 +67,23 @@ export const downloadPlaylist = async (id: string, isPrivate: boolean) => {
     }
 }
 
+export const uploadPlaylist = async (id: string) => {
+    await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`); // used to cache playlist in redis
+
+    const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('google-token')}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload playlist with id: ' + id);
+    }
+
+    console.log('uploaded playlist with id: ' + id);
+}
+
 const fetchItems = async (id: string, isPrivate: boolean) => {
     try {
         let response;
@@ -98,4 +115,4 @@ export const login = async (url: string) => {
     } catch (error) {
       console.log(error);
     }
-  }
+}
