@@ -188,7 +188,7 @@ export default function Playlists({ googleToken }: {
               Prev
           </button>
           <button 
-            disabled={!data.next || isLoading} 
+            disabled={!data.next} 
             onClick={() => setPageIndex(pageIndex + 1)}
             className={styles['pagination-button']}>
               {isLoading ? <ReactLoading type='spin' color='grey' width={10} height={13}/> : 'Next'}
