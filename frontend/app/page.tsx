@@ -62,6 +62,7 @@ export default function Page() {
           <input className={styles['input-field']} type='text' value={inputValue} onChange={handleInputChange} />
           <button type='submit' className={styles['download-button']}>Download</button>
         </form>
+        
         <Playlists googleToken={prevGoogleKey}/>
       </div>
     </main>

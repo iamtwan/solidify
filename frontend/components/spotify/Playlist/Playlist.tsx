@@ -11,9 +11,9 @@ export default function Playlist({ playlist, checked, isUploading, handleCheckbo
     handleCheckboxChange: Function
 }) {
   return <div className={styles['playlist-container']}>
-    <label className={styles['playlist-name']}>
+    <label className={styles['playlist-label']}>
       <input type='checkbox' checked={checked} onChange={() => handleCheckboxChange(playlist)}/>
-      {playlist.name}
+      <span className={styles['playlist-name']}>{playlist.name}</span>
     </label>
 
     <div className={styles['upload-download']}>

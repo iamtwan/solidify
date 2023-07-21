@@ -152,8 +152,8 @@ export default function Playlists({ googleToken }: {
 
   const spotifyLogin = () => login('http://127.0.0.1:8000/v1/auth/spotify/login');
 
-  return <div>
-    <div className={styles['playlists-container']}>
+  return <div className={styles['playlists-container']}>
+    <div className={styles['playlists-options']}>
       <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
     
       <div className={playlistStyles['upload-download']}>

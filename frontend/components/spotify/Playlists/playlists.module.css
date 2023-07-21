@@ -37,7 +37,7 @@
 
 .download:hover {
   cursor: pointer;
-  background-color: #e0e0e0; /* Change this to the desired background color */
+  background-color: #e0e0e0;
 }
 
 .upload {
@@ -64,10 +64,14 @@
 
 .upload:hover {
   cursor: pointer;
-  background-color: #e0e0e0; /* Change this to the desired background color */
+  background-color: #e0e0e0; 
 }
 
 .playlists-container {
+  width: 500px;
+}
+
+.playlists-options {
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid;
