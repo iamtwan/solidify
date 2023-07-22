@@ -1,7 +1,3 @@
-.material-symbols-outlined:hover {
-  cursor: pointer;
-}
-
 .playlist-form {
   display: flex;
   flex-direction: column;

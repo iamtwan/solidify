@@ -5,6 +5,7 @@ import PlaylistInterface from "../PlaylistInterface";
 import { useState, useEffect } from "react";
 import { fetchPlaylists, downloadPlaylist, login } from "@/services/api";
 import styles from './playlists.module.css';
+import playlistStyles from '../Playlist/playlist.module.css';
 
 export default function Playlists({ googleToken }: {
   googleToken: string
@@ -169,13 +170,13 @@ export default function Playlists({ googleToken }: {
   const spotifyLogin = () => login('http://127.0.0.1:8000/v1/auth/spotify/login');
 
   return <div>
-    <div>
-      <label>
-        <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
-        Select all
-      </label>
-      <span className={styles.download}>download</span>
-      <span className={styles.upload}>upload</span>
+    <div className={styles['playlists-container']}>
+      <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
+    
+      <div className={playlistStyles['upload-download']}>
+        <span className={styles.download}>download</span>
+        <span className={styles.upload}>upload</span>
+      </div>
     </div>
     
     {error ? <button onClick={spotifyLogin}>Spotify login</button> : isLoading ? <div>Loading...</div> : data.playlists.map((playlist: PlaylistInterface) => {
