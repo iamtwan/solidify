@@ -1,8 +1,8 @@
 'use client';
 
-import styles from './page.module.css'
+import styles from './page.module.css';
 import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
-import Playlists from '@/components/spotify/Playlists';
+import Playlists from '@/components/spotify/Playlists/Playlists';
 import { mutatePlaylists, downloadPlaylist, login } from '@/services/api';
 
 export default function Page() {

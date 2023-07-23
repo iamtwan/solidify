@@ -1,9 +1,10 @@
 'use client';
 
-import Playlist from "./Playlist";
-import PlaylistInterface from "./PlaylistInterface";
+import Playlist from "../Playlist/Playlist";
+import PlaylistInterface from "../PlaylistInterface";
 import { useState, useEffect } from "react";
 import { fetchPlaylists, downloadPlaylist, login } from "@/services/api";
+import styles from './playlists.module.css';
 
 export default function Playlists({ googleToken }: {
   googleToken: string
@@ -123,6 +124,7 @@ export default function Playlists({ googleToken }: {
         } catch(error) {
           console.log(error);
         } 
+        
         break;
       } finally {
         setPlaylistIsUploading(id, false);
@@ -172,13 +174,13 @@ export default function Playlists({ googleToken }: {
         <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
         Select all
       </label>
-      <button onClick={downloadSelected}>Download selected</button>
-      <button onClick={uploadSelected}>Uploaded selected</button>
+      <span className={styles.download}>download</span>
+      <span className={styles.upload}>upload</span>
     </div>
     
     {error ? <button onClick={spotifyLogin}>Spotify login</button> : isLoading ? <div>Loading...</div> : data.playlists.map((playlist: PlaylistInterface) => {
-      const checked = checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked;
-      const isUploading = checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading;
+      const checked = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked) || false;
+      const isUploading = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading) || false;
 
       return <Playlist key={playlist.id} 
         playlist={playlist} 

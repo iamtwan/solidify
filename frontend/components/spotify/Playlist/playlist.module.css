@@ -1,0 +1,12 @@
+.playlist-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.playlist-name {
+  align-self: flex-start;
+}
+
+.upload-download {
+  align-self: flex-end;
+}
