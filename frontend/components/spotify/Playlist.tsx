@@ -11,5 +11,6 @@ export default function Playlist({ playlist, checked, handleCheckboxChange }: {
     return <label>
         <input type='checkbox' checked={checked} onChange={() => handleCheckboxChange(playlist)}/>
         {playlist.name}
+        {playlist.isUploading ? 'Uploading' : 'Upload'}
     </label>
 }

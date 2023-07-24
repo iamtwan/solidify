@@ -54,11 +54,10 @@ export default function Playlists({ playlists, googleToken }: {
 
   const handleSelectAll = () => {
     const isAnyChecked = isAnyPlaylistChecked();
-
-    const updatedPlaylists = {};
+    const updatedPlaylists: { [key: string]: PlaylistInfo } = {};
     
     for (const key in checkedPlaylists) {
-      checkedPlaylists[key] = { ...checkedPlaylists[key], checked: !isAnyChecked }
+      updatedPlaylists[key] = { ...checkedPlaylists[key], checked: !isAnyChecked }
     }
 
     setCheckedPlaylists(updatedPlaylists);
