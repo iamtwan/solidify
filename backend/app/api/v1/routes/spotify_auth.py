@@ -10,8 +10,6 @@ import uuid
 
 
 SCOPE = 'playlist-read-private'
-# need to generate a proper state for deployment
-STATE = 'random-pass'
 SHOW_DIALOG = 'false'
 
 router = APIRouter()
@@ -25,17 +23,19 @@ def check_env_var(env_var_name: str) -> str:
 
 
 @router.get('/login')
-def login():
+def login(redis=Depends(get_redis)):
     client_id = check_env_var('CLIENT_ID')
     redirect_uri = os.getenv(
         'REDIRECT_URI', 'http://localhost:8000/v1/auth/callback')
     auth_url = 'https://accounts.spotify.com/authorize'
+    state = str(uuid.uuid4())
+    redis.set(f'{state}_state', 'valid', ex=1800)
     params = {
         'client_id': client_id,
         'response_type': 'code',
         'redirect_uri': redirect_uri,
         'scope': SCOPE,
-        'state': STATE,
+        'state': state,
         'show_dialog': SHOW_DIALOG,
     }
     url = f'{auth_url}?{urlencode(params)}'
@@ -45,11 +45,13 @@ def login():
 @router.get('/callback')
 def callback(code: str, state: str, redis=Depends(get_redis)):
     try:
-        if state != STATE:
+        valid = redis.get(f'{state}_state')
+        if not valid:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='State mismatch',
             )
+        redis.delete(f'{state}_state')
 
         client_id = check_env_var('CLIENT_ID')
         client_secret = check_env_var('CLIENT_SECRET')
