@@ -37,7 +37,16 @@ def get_current_user_id(request: Request):
         if not secret_key:
             raise ValueError('SECRET_KEY is not set in the environment')
         payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
-        return payload.get('sub')
+        subject = payload.get('sub')
+
+        if subject is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Invalid token, subject is missing'
+            )
+
+        return subject
+
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -54,14 +63,17 @@ def get_user_spotify_service(
         user_id: str = Depends(get_current_user_id),
         redis=Depends(get_redis)
 ):
-    access_token = redis.get(f'{user_id}_access_token').decode("utf-8")
-    refresh_token = redis.get(f'{user_id}_refresh_token').decode("utf-8")
+    access_token_raw = redis.get(f'{user_id}_access_token')
+    refresh_token_raw = redis.get(f'{user_id}_refresh_token')
 
-    if access_token is None:
+    if access_token_raw is None or refresh_token_raw is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Not authenticated',
         )
+
+    access_token = access_token_raw.decode('utf-8')
+    refresh_token = refresh_token_raw.decode('utf-8')
 
     client_id = os.getenv('CLIENT_ID')
     client_secret = os.getenv('CLIENT_SECRET')
