@@ -3,8 +3,10 @@ from starlette.responses import RedirectResponse
 from ..utils.jwt import create_access_token
 from ..dependencies import get_redis
 from urllib.parse import urlencode
+from datetime import timedelta
 import requests
 import os
+import uuid
 
 
 SCOPE = 'playlist-read-private'
@@ -25,7 +27,8 @@ def check_env_var(env_var_name: str) -> str:
 @router.get('/login')
 def login():
     client_id = check_env_var('CLIENT_ID')
-    redirect_uri = os.getenv('REDIRECT_URI', 'http://localhost:8000/v1/auth/callback')
+    redirect_uri = os.getenv(
+        'REDIRECT_URI', 'http://localhost:8000/v1/auth/callback')
     auth_url = 'https://accounts.spotify.com/authorize'
     params = {
         'client_id': client_id,
@@ -52,7 +55,8 @@ def callback(code: str, state: str, redis=Depends(get_redis)):
         client_secret = check_env_var('CLIENT_SECRET')
         if not client_secret:
             raise ValueError('CLIENT_SECRET is not set in the environment')
-        redirect_uri = os.getenv('REDIRECT_URI', 'http://localhost:8000/v1/auth/callback')
+        redirect_uri = os.getenv(
+            'REDIRECT_URI', 'http://localhost:8000/v1/auth/callback')
 
         token_url = 'https://accounts.spotify.com/api/token'
         data = {
@@ -67,12 +71,28 @@ def callback(code: str, state: str, redis=Depends(get_redis)):
 
         tokens = response.json()
 
-        redis.set('access_token', tokens['access_token'])
-        redis.set('refresh_token', tokens['refresh_token'])
+        random_id = str(uuid.uuid4())
+        expiry_time = tokens['expires_in'] - (5 * 60)
 
-        # TODO: Replace 'spotify_user_id' with the actual user ID
-        access_token = create_access_token(subject='spotify_user_id')
-        return {'access_token': access_token}
+        redis.set(
+            f'{random_id}_access_token',
+            tokens['access_token'],
+            ex=expiry_time
+        )
+        redis.set(
+            f'{random_id}refresh_token',
+            tokens['refresh_token'],
+            ex=expiry_time
+        )
 
-    except HTTPException as exception:
-        return exception
+        jw_token = create_access_token(
+            subject=random_id,
+            expires_delta=timedelta(seconds=expiry_time)
+        )
+        return {'jw_token': jw_token}
+
+    except Exception as exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(exception),
+        )

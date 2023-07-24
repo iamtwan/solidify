@@ -5,10 +5,13 @@ import os
 
 
 ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_SECONDS = 30 * 60
 
 
-def create_access_token(subject: str, expires_delta: Optional[timedelta] = None):
+def create_access_token(
+        subject: str,
+        expires_delta: Optional[timedelta] = None
+):
     """
     Creates a JWT access token.
 
@@ -28,8 +31,7 @@ def create_access_token(subject: str, expires_delta: Optional[timedelta] = None)
         raise ValueError('SECRET_KEY is not set in the environment')
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+
     to_encode = {'exp': expire, 'sub': str(subject)}
     encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=ALGORITHM)
     return encoded_jwt

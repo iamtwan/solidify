@@ -16,7 +16,8 @@ class SpotifyService:
             self.authenticate()
 
     def authenticate(self):
-        auth_string = base64.b64encode(f'{self.client_id}:{self.client_secret}'.encode('utf-8')).decode('utf-8')
+        auth_string = base64.b64encode(
+            f'{self.client_id}:{self.client_secret}'.encode('utf-8')).decode('utf-8')
         headers = {'Authorization': f'Basic {auth_string}'}
         data = {'grant_type': 'client_credentials'}
 
@@ -35,9 +36,15 @@ class SpotifyService:
         if not self.refresh_token:
             return
 
-        auth_string = base64.b64encode(f'{self.client_id}:{self.client_secret}'.encode('utf-8')).decode('utf-8')
+        auth_string = base64.b64encode(
+            f'{self.client_id}:{self.client_secret}'.encode('utf-8')).decode('utf-8')
         headers = {'Authorization': f'Basic {auth_string}'}
-        data = {'grant_type': 'refresh_token', 'refresh_token': self.token}
+        data = {
+            'grant_type': 'refresh_token',
+            'refresh_token': self.refresh_token
+        }
+        # remove before pushing
+        # data = {'grant_type': 'refresh_token', 'refresh_token': self.token}
 
         response = requests.post(self.token_url, headers=headers, data=data)
         response.raise_for_status()
