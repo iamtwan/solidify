@@ -57,12 +57,23 @@ class SpotifyService:
         self.token = token_data['access_token']
         self.token_expires = time.time() + token_data['expires_in']
 
-    def get_protected_playlists(self):
+    def get_all_playlists(self):
         self.check_access_token()
 
-        # fields = 'items(id,name,public)'
-        # url = f'{self.base_url}/me/playlists?fields={fields}'
-        url = f'{self.base_url}/me/playlists'
+        fields = 'items(id,name,public)'
+        url = f'{self.base_url}/me/playlists?fields={fields}'
+        headers = {'Authorization': f'Bearer {self.token}'}
+
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+
+        return response.json()
+
+    def get_protected_playlist(self, playlist_id):
+        self.check_access_token()
+
+        fields = 'total,items(track(name,artists(name),album(name)))'
+        url = f'{self.base_url}/playlists/{playlist_id}/tracks?fields={fields}'
         headers = {'Authorization': f'Bearer {self.token}'}
 
         response = requests.get(url, headers=headers)
