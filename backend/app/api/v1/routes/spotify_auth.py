@@ -29,7 +29,7 @@ def login(redis=Depends(get_redis)):
         'REDIRECT_URI', 'http://localhost:8000/v1/auth/callback')
     auth_url = 'https://accounts.spotify.com/authorize'
     state = str(uuid.uuid4())
-    redis.set(f'{state}_state', 'valid', ex=1800)
+    redis.set(f'{state}_state', 'valid', ex=600)
     params = {
         'client_id': client_id,
         'response_type': 'code',

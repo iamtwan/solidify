@@ -50,7 +50,7 @@ def get_current_user_id(request: Request):
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Invalid token or expired token',
+            detail='Invalid or expired jw_token',
         )
     except ValueError:
         raise HTTPException(
