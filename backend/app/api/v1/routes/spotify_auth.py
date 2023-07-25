@@ -82,7 +82,7 @@ def callback(code: str, state: str, redis=Depends(get_redis)):
             ex=expiry_time
         )
         redis.set(
-            f'{random_id}refresh_token',
+            f'{random_id}_refresh_token',
             tokens['refresh_token'],
             ex=expiry_time
         )

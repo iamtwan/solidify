@@ -4,7 +4,13 @@ import time
 
 
 class SpotifyService:
-    def __init__(self, client_id, client_secret, access_token=None, refresh_token=None):
+    def __init__(
+            self,
+            client_id,
+            client_secret,
+            access_token=None,
+            refresh_token=None
+    ):
         self.base_url = 'https://api.spotify.com/v1'
         self.token_url = 'https://accounts.spotify.com/api/token'
         self.client_id = client_id
@@ -43,8 +49,6 @@ class SpotifyService:
             'grant_type': 'refresh_token',
             'refresh_token': self.refresh_token
         }
-        # remove before pushing
-        # data = {'grant_type': 'refresh_token', 'refresh_token': self.token}
 
         response = requests.post(self.token_url, headers=headers, data=data)
         response.raise_for_status()
@@ -53,11 +57,12 @@ class SpotifyService:
         self.token = token_data['access_token']
         self.token_expires = time.time() + token_data['expires_in']
 
-    def get_playlist(self, playlist_id):
+    def get_protected_playlists(self):
         self.check_access_token()
 
-        fields = 'name,tracks.total,tracks.items(track(name,artists(name),album(name)))'
-        url = f'{self.base_url}/playlists/{playlist_id}?fields={fields}'
+        # fields = 'items(id,name,public)'
+        # url = f'{self.base_url}/me/playlists?fields={fields}'
+        url = f'{self.base_url}/me/playlists'
         headers = {'Authorization': f'Bearer {self.token}'}
 
         response = requests.get(url, headers=headers)
@@ -65,11 +70,11 @@ class SpotifyService:
 
         return response.json()
 
-    def get_protected_playlists(self):
+    def get_playlist(self, playlist_id):
         self.check_access_token()
 
-        fields = 'items(id,name,public)'
-        url = f'{self.base_url}/me/playlists?fields={fields}'
+        fields = 'name,tracks.total,tracks.items(track(name,artists(name),album(name)))'
+        url = f'{self.base_url}/playlists/{playlist_id}?fields={fields}'
         headers = {'Authorization': f'Bearer {self.token}'}
 
         response = requests.get(url, headers=headers)
