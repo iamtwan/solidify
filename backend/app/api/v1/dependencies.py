@@ -9,7 +9,7 @@ ALGORITHM = 'HS256'
 
 
 def get_redis():
-    return redis.Redis(host='localhost', port=6379, db=0)
+    return redis.Redis(host='redis', port=6379, db=0)
 
 
 def get_spotify_service():
