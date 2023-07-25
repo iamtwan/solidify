@@ -2,15 +2,16 @@
 
 import PlaylistInterface from './PlaylistInterface';
 
-export default function Playlist({ playlist, checked, handleCheckboxChange }: {
+export default function Playlist({ playlist, checked, isUploading, handleCheckboxChange }: {
     playlist: PlaylistInterface,
     checked: boolean,
+    isUploading: boolean,
     handleCheckboxChange: Function
-}) {
-
+}) {    
     return <label>
         <input type='checkbox' checked={checked} onChange={() => handleCheckboxChange(playlist)}/>
         {playlist.name}
-        {playlist.isUploading ? 'Uploading' : 'Upload'}
+        {isUploading ? 'Uploading' : 'Upload'}
     </label>
+   
 }

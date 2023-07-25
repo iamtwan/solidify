@@ -2,9 +2,8 @@
 
 import styles from './page.module.css'
 import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
-import { CSVLink } from 'react-csv';
 import Playlists from '@/components/spotify/Playlists';
-import { fetchPlaylists, mutatePlaylists, login } from '@/services/api';
+import { fetchPlaylists, mutatePlaylists, downloadPlaylist, login } from '@/services/api';
 
 export default function Page() {
   const [inputValue, setInputValue] = useState('4pUmha8MJtm7RQBEETaSaI');
@@ -51,35 +50,13 @@ export default function Page() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/v1/playlists/${inputValue}`);
+      const response = await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${inputValue}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch playlist");
       }
 
-      const data = await response.json();
-      const tracks = [];
-      
-      for (const item of data.tracks.items) {
-        const track = [item.track.name, item.track.album.name];
-        const artists = [];
-
-        for (let artist of item.track.artists) {
-          artists.push(artist.name);
-        }
-
-        track.push(artists);
-        tracks.push(track);
-      }
-
-      const csvInfo = [
-        ['Name', data.name], 
-        ['Total', data.tracks.total], 
-        ['Track Name', 'Album Name', 'Artist Names'], 
-        ...tracks
-      ];
-
-      setCsvData(csvInfo);
+      await downloadPlaylist(inputValue, false);
     } catch (error) {
       console.error('Error: ', error);
     }
@@ -90,12 +67,16 @@ export default function Page() {
   return (
     <main className={styles.main}>
       <div>
-        <form onSubmit={handleSubmit}>
-          <input type='text' value={inputValue} onChange={handleInputChange} />
-          <button type='submit'>Submit</button>
+        <h1>Enter a link to a Spotify playlist</h1>
+        <form className={styles['playlist-form']} name='playlistForm' onSubmit={handleSubmit}>
+          <input className={styles['input-field']} type='text' value={inputValue} onChange={handleInputChange} />
+          <button type='submit' className={styles['download-button']}>Download</button>
         </form>
-        <CSVLink data={csvData}>Download</CSVLink>
-        {error ? (<button onClick={spotifyLogin}>Spotify Login</button>) : (<Playlists playlists={data?.playlists} googleToken={prevGoogleKey}/>)}
+        <h1>Sign in to Spotify to view playlists</h1>
+        {error ? 
+        <button className={styles['login-button']} onClick={spotifyLogin}>Spotify Login</button> 
+        : 
+        <Playlists playlists={data?.playlists} googleToken={prevGoogleKey}/>}
       </div>
     </main>
   )

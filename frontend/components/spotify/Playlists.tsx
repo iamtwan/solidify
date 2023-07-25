@@ -3,8 +3,7 @@
 import Playlist from "./Playlist";
 import PlaylistInterface from "./PlaylistInterface";
 import { useState, useEffect } from "react";
-import Papa from 'papaparse';
-import { login } from "@/services/api";
+import { downloadPlaylist, login } from "@/services/api";
 
 export default function Playlists({ playlists, googleToken }: {
   playlists: PlaylistInterface[],
@@ -33,9 +32,12 @@ export default function Playlists({ playlists, googleToken }: {
     const uploadPlaylists = async () => {
       for (let id of playlistsToUpload) {
         try {
+          setPlaylistIsUploading(id, true);
           await uploadPlaylist(id);
         } catch (error) {
           console.log(error);
+        } finally {
+          setPlaylistIsUploading(id, false);
         }
       }
  
@@ -65,53 +67,16 @@ export default function Playlists({ playlists, googleToken }: {
 
   const isAnyPlaylistChecked = () => Object.values(checkedPlaylists).some((playlist) => playlist.checked);
 
-  const fetchItems = async (id: string) => {
-    try {
-        const response = await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/private/${id}`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('spotify_token')}`
-            }
-        });
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
-}
-
-const downloadSelected = async () => {
-  for (const [id, playlistInfo] of Object.entries(checkedPlaylists)) {
-    try {
-      if (!playlistInfo.checked) continue;
-
-      const data = await fetchItems(id);
-      const tracks = data.tracks.items.map((item: any) => [
-          item.track.name,
-          item.track.album.name,
-          item.track.artists.map((artist: any) => artist.name)
-      ]);
-
-      const csvInfo = [
-          ['Name', data.name],
-          ['Total', data.tracks.total],
-          ['Track Name', 'Album Name', 'Artist Names'],
-          ...tracks
-      ];
-
-      const csv = Papa.unparse(csvInfo);
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `${data.name}.csv`;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link); 
-    } catch (error) {
-      console.log(error);
+  const downloadSelected = async () => {
+    for (const [id, playlistInfo] of Object.entries(checkedPlaylists)) {
+      try {
+        if (!playlistInfo.checked) continue;
+        await downloadPlaylist(id, true);
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
-}
 
   const uploadPlaylist = async (id: string) => {
       await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`); // used to cache playlist in redis
@@ -139,6 +104,7 @@ const downloadSelected = async () => {
       playlists.push(id);
 
       try {
+        setPlaylistIsUploading(id, true);
         await uploadPlaylist(id);
       } catch (error) {
         console.log(error);
@@ -148,11 +114,19 @@ const downloadSelected = async () => {
           await login('http://127.0.0.1:8000/v1/auth/google/login');
         } catch(error) {
           console.log(error);
-        }
-
+        } 
         break;
+      } finally {
+        setPlaylistIsUploading(id, false);
       }
     }
+  }
+
+  const setPlaylistIsUploading = (id: string, isUploading: boolean) => {
+    setCheckedPlaylists(prevCheckedPlaylists => ({
+      ...prevCheckedPlaylists,
+      [id]: { ...prevCheckedPlaylists[id], isUploading }
+    }));
   }
 
 // const refreshGoogleToken = async () => {
@@ -183,20 +157,26 @@ const downloadSelected = async () => {
 // }
 
   return <div>
-    <label>
-      <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
-      Select all
-    </label>
-    <button onClick={downloadSelected}>Download selected</button>
-    <button onClick={uploadSelected}>Uploaded selected</button>
+    <div>
+      <label>
+        <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
+        Select all
+      </label>
+      <button onClick={downloadSelected}>Download selected</button>
+      <button onClick={uploadSelected}>Uploaded selected</button>
+    </div>
+
     {playlists.map(playlist => {
       const checked = checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked;
+      const isUploading = checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading;
 
       return <Playlist key={playlist.id} 
         playlist={playlist} 
         checked={checked}
+        isUploading={isUploading}
         handleCheckboxChange={handleCheckboxChange}
-      />
+      /> 
   })}
+  
   </div>
 }
