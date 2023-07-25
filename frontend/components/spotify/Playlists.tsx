@@ -64,7 +64,7 @@ export default function Playlists({ playlists, googleToken }: {
     setCheckedPlaylists(updatedPlaylists);
   };
 
-  const isAnyPlaylistChecked = () => Object.values(checkedPlaylists).some((isChecked) => isChecked);
+  const isAnyPlaylistChecked = () => Object.values(checkedPlaylists).some((playlist) => playlist.checked);
 
   const fetchItems = async (id: string) => {
     try {
@@ -81,20 +81,20 @@ export default function Playlists({ playlists, googleToken }: {
 }
 
 const downloadSelected = async () => {
-  for (const [id, checked] of Object.entries(checkedPlaylists)) {
-      if (!checked) continue;
+  for (const [id, playlistInfo] of Object.entries(checkedPlaylists)) {
+    try {
+      if (!playlistInfo.checked) continue;
 
-      const playlist = playlists.find(playlist => playlist.id === id) || {} as PlaylistInterface;
       const data = await fetchItems(id);
-      const tracks = data.items.map((item: any) => [
+      const tracks = data.tracks.items.map((item: any) => [
           item.track.name,
           item.track.album.name,
           item.track.artists.map((artist: any) => artist.name)
       ]);
 
       const csvInfo = [
-          ['Name', playlist.name],
-          ['Total', data.total],
+          ['Name', data.name],
+          ['Total', data.tracks.total],
           ['Track Name', 'Album Name', 'Artist Names'],
           ...tracks
       ];
@@ -103,55 +103,58 @@ const downloadSelected = async () => {
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `${playlist.name}.csv`;
+      link.download = `${data.name}.csv`;
       link.style.display = 'none';
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
-  }
-}
-
-const uploadPlaylist = async (id: string) => {
-    await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`); // used to cache playlist in redis
-
-    const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${googleToken}`
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to upload playlist with id: ' + id);
-    }
-
-    console.log('uploaded playlist with id: ' + id);
-}
-
-const uploadSelected = async () => {
-  const playlists = [];
-
-  for (const [id, checked] of Object.entries(checkedPlaylists)) {
-    if (!checked) continue;
-
-    playlists.push(id);
-
-    try {
-      await uploadPlaylist(id);
+      document.body.removeChild(link); 
     } catch (error) {
       console.log(error);
-
-      try {
-        setPlaylistsToUpload(playlists);
-          await login('http://127.0.0.1:8000/v1/auth/google/login');
-      } catch(error) {
-        console.log(error);
-      }
-
-      break;
     }
   }
 }
+
+  const uploadPlaylist = async (id: string) => {
+      await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`); // used to cache playlist in redis
+
+      const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${googleToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload playlist with id: ' + id);
+      }
+
+      console.log('uploaded playlist with id: ' + id);
+  }
+
+  const uploadSelected = async () => {
+    const playlists = [];
+
+    for (const [id, playlistInfo] of Object.entries(checkedPlaylists)) {
+      if (!playlistInfo.checked) continue;
+
+      playlists.push(id);
+
+      try {
+        await uploadPlaylist(id);
+      } catch (error) {
+        console.log(error);
+
+        try {
+          setPlaylistsToUpload(playlists);
+          await login('http://127.0.0.1:8000/v1/auth/google/login');
+        } catch(error) {
+          console.log(error);
+        }
+
+        break;
+      }
+    }
+  }
 
 // const refreshGoogleToken = async () => {
 //   const googleToken = localStorage.getItem('google_token');
@@ -188,11 +191,13 @@ const uploadSelected = async () => {
     <button onClick={downloadSelected}>Download selected</button>
     <button onClick={uploadSelected}>Uploaded selected</button>
     {playlists.map(playlist => {
-    return <Playlist key={playlist.id} 
-      playlist={playlist} 
-      checked={checkedPlaylists[playlist.id].checked || false}
-      handleCheckboxChange={handleCheckboxChange}
-    />
+      const checked = checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked;
+
+      return <Playlist key={playlist.id} 
+        playlist={playlist} 
+        checked={checked}
+        handleCheckboxChange={handleCheckboxChange}
+      />
   })}
   </div>
 }
