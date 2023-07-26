@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 
-const fetcher = async (url: string, headers: HeadersInit) => {
+const fetcher = async (url: string, headers: HeadersInit = new Headers()) => {
     const response = await fetch(url, { headers });
 
     if (!response.ok) {

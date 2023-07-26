@@ -4,11 +4,8 @@ import styles from './page.module.css'
 import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { CSVLink } from 'react-csv';
 import { useRouter } from 'next/navigation';
-import GoogleButton from 'react-google-button';
 import Playlists from '@/components/spotify/Playlists';
-import PlaylistInterface from '@/components/spotify/PlaylistInterface';
 import { fetchPlaylists } from '@/services/api';
-
 
 export default function Home() {
   const [inputValue, setInputValue] = useState('4pUmha8MJtm7RQBEETaSaI');
@@ -86,7 +83,6 @@ export default function Home() {
         </form>
         <CSVLink data={csvData}>Download</CSVLink>
         {error && <button onClick={spotifyLogin}>Spotify Login</button>}
-        <GoogleButton onClick={googleLogin} />      
         {!error && <Playlists playlists={data.playlists}/>}
       </div>
     </main>
