@@ -19,46 +19,51 @@ export default function Home() {
     e.preventDefault();
 
     try {
-      const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Basic ' + (Buffer.from(client_id + ':' + client_secret).toString('base64')),
-        },
-        body: new URLSearchParams({
-          'grant_type': 'client_credentials'
-        })
-      });
+      // const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Authorization': 'Basic ' + (Buffer.from(client_id + ':' + client_secret).toString('base64')),
+      //   },
+      //   body: new URLSearchParams({
+      //     'grant_type': 'client_credentials'
+      //   })
+      // });
   
-      const tokenData = await tokenResponse.json();
-      const response = await fetch(inputValue, {
-        headers: {
-          'Authorization': 'Bearer ' + tokenData.access_token
-        }
-      });
+      // const tokenData = await tokenResponse.json();
+      // const response = await fetch(inputValue, {
+      //   headers: {
+      //     'Authorization': 'Bearer ' + tokenData.access_token
+      //   }
+      // });
   
-      const data = await response.json();
-      const tracks = [];
+      // const data = await response.json();
+      // const tracks = [];
       
-      for (const item of data.tracks.items) {
-        const track = [item.track.name, item.track.album.name];
-        const artists = [];
+      // for (const item of data.tracks.items) {
+      //   const track = [item.track.name, item.track.album.name];
+      //   const artists = [];
 
-        for (let artist of item.track.artists) {
-          artists.push(artist.name);
-        }
+      //   for (let artist of item.track.artists) {
+      //     artists.push(artist.name);
+      //   }
 
-        track.push(artists);
-        tracks.push(track);
-      }
+      //   track.push(artists);
+      //   tracks.push(track);
+      // }
 
-      const csvInfo = [
-        ['Name', data.name], 
-        ['Total', data.tracks.total], 
-        ['Track Name', 'Album Name', 'Artist Names'], 
-        ...tracks
-      ];
+      // const csvInfo = [
+      //   ['Name', data.name], 
+      //   ['Total', data.tracks.total], 
+      //   ['Track Name', 'Album Name', 'Artist Names'], 
+      //   ...tracks
+      // ];
 
-      setCsvData(csvInfo);
+      const response = await fetch(`http://127.0.0.1:8000/v1/playlists/${inputValue}`);
+      const data = await response.json();
+
+      console.log(data);
+
+      setCsvData(data);
     } catch (error) {
       console.error('Error: ', error);
     }
