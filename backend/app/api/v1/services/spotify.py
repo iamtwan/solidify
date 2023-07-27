@@ -73,8 +73,12 @@ class SpotifyService:
         fieldnames = ["track_name", "artist_name", "album_name"]
         writer = csv.DictWriter(output, fieldnames=fieldnames)
 
+        writer.writerow({"track_name": "Total Tracks",
+                        "artist_name": playlist['tracks']['total'], "album_name": ""})
+        writer.writerow({"track_name": "Playlist Name",
+                        "artist_name": playlist['name'], "album_name": ""})
         writer.writeheader()
-        for item in playlist['items']:
+        for item in playlist['tracks']['items']:
             track = item['track']
             writer.writerow({
                 "track_name": track['name'],
@@ -90,8 +94,8 @@ class SpotifyService:
         redis.set(f'{playlist_id}_csv', csv_string, ex=3600)
 
     def get_protected_playlist(self, playlist_id: str) -> Any:
-        fields = 'total,items(track(name,artists(name),album(name)))'
-        url = f'{self.base_url}/playlists/{playlist_id}/tracks?fields={fields}'
+        fields = 'name,tracks.total,tracks.items(track(name,artists(name),album(name)))'
+        url = f'{self.base_url}/playlists/{playlist_id}/?fields={fields}'
 
         response = requests.get(url, headers=self.headers)
         response.raise_for_status()
@@ -109,7 +113,7 @@ class SpotifyService:
         response.raise_for_status()
 
         playlist = response.json()
-        # self.cache_playlist(playlist_id, playlist)
+        self.cache_playlist(playlist_id, playlist)
 
         return playlist
 
