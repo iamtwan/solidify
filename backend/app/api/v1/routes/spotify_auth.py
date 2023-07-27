@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from starlette.responses import RedirectResponse
 from ..utils.jwt import create_access_token
 from ..dependencies import get_redis
 from urllib.parse import urlencode
@@ -39,7 +38,7 @@ def login(redis=Depends(get_redis)):
         'show_dialog': SHOW_DIALOG,
     }
     url = f'{auth_url}?{urlencode(params)}'
-    return RedirectResponse(url)
+    return {'url': url}
 
 
 @router.get('/callback')
