@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from starlette.responses import RedirectResponse
 from ..utils.jwt import create_access_token
 from ..dependencies import get_redis
 from urllib.parse import urlencode
@@ -26,7 +25,7 @@ def check_env_var(env_var_name: str) -> str:
 def login(redis=Depends(get_redis)):
     client_id = check_env_var('CLIENT_ID')
     redirect_uri = os.getenv(
-        'REDIRECT_URI', 'http://localhost:8000/v1/auth/callback')
+        'REDIRECT_URI', 'http://localhost:3000')
     auth_url = 'https://accounts.spotify.com/authorize'
     state = str(uuid.uuid4())
     redis.set(f'{state}_state', 'valid', ex=600)
@@ -39,7 +38,7 @@ def login(redis=Depends(get_redis)):
         'show_dialog': SHOW_DIALOG,
     }
     url = f'{auth_url}?{urlencode(params)}'
-    return RedirectResponse(url)
+    return {'url': url}
 
 
 @router.get('/callback')
