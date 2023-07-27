@@ -25,7 +25,7 @@ def check_env_var(env_var_name: str) -> str:
 def login(redis=Depends(get_redis)):
     client_id = check_env_var('CLIENT_ID')
     redirect_uri = os.getenv(
-        'REDIRECT_URI', 'http://localhost:8000/v1/auth/callback')
+        'REDIRECT_URI', 'http://localhost:3000')
     auth_url = 'https://accounts.spotify.com/authorize'
     state = str(uuid.uuid4())
     redis.set(f'{state}_state', 'valid', ex=600)
