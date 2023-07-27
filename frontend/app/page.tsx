@@ -1,17 +1,23 @@
 'use client';
 
 import styles from './page.module.css'
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { CSVLink } from 'react-csv';
 import { useRouter } from 'next/navigation';
 import GoogleButton from 'react-google-button';
 import Playlists from '@/components/spotify/Playlists';
 import PlaylistInterface from '@/components/spotify/PlaylistInterface';
+import { fetchPlaylists } from '@/services/api';
+
 
 export default function Home() {
   const [inputValue, setInputValue] = useState('4pUmha8MJtm7RQBEETaSaI');
   const [csvData, setCsvData] = useState<string[][]>([]);
-  const [playlists, setPlaylists] = useState<PlaylistInterface[]>([]);
+  const { data, error, isLoading } = fetchPlaylists();
+
+  if (isLoading) {
+    return <div>Loading playlists</div>
+  }
 
   const router = useRouter();
 
@@ -71,25 +77,6 @@ export default function Home() {
 
   const googleLogin = () => login('http://127.0.0.1:8000/v1/auth/google/login');
 
-  const fetchPlaylists = async () => {
-    try {
-      const response = await fetch(`http://127.0.0.1:8000/v1/spotify/all`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('spotify_token')}`
-        }
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch playlists');
-      }
-
-      setPlaylists(data.playlists);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   return (
     <main className={styles.main}>
       <div>
@@ -98,10 +85,9 @@ export default function Home() {
           <button type='submit'>Submit</button>
         </form>
         <CSVLink data={csvData}>Download</CSVLink>
-        <button onClick={spotifyLogin}>Spotify Login</button>
+        {error && <button onClick={spotifyLogin}>Spotify Login</button>}
         <GoogleButton onClick={googleLogin} />      
-        <button onClick={fetchPlaylists}>Get all playlists</button>
-        <Playlists playlists={playlists}/>
+        {!error && <Playlists playlists={data.playlists}/>}
       </div>
     </main>
   )

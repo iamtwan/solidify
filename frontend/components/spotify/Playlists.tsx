@@ -88,8 +88,9 @@ const uploadSelected = async () => {
   for (const [id, checked] of Object.entries(checkedPlaylists)) {
     if (!checked) continue;
 
+    await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`); // used to cache playlist in redis
+
     try {
-      await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`);
       const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
         method: 'POST',
         headers: {
