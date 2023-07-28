@@ -38,7 +38,7 @@ def upload_to_google(
         )
 
 
-@router.post('/refresh/google', tags=['Google'])
+@router.post('/refresh', tags=['Google'])
 async def refresh_google_session(
     redis=Depends(get_redis),
     old_jwt=Depends(get_current_user_jwt),
