@@ -41,7 +41,7 @@ export default function Playlists({ playlists }: {
 
   const fetchItems = async (id: string) => {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/v1/spotify/private/${id}`, {
+        const response = await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/private/${id}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('spotify_token')}`
             }
@@ -89,6 +89,7 @@ const uploadSelected = async () => {
     if (!checked) continue;
 
     try {
+      await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`);
       const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
         method: 'POST',
         headers: {
@@ -99,15 +100,18 @@ const uploadSelected = async () => {
       if (!response.ok) {
         throw new Error('Failed to upload playlist with id: ' + id);
       }
+
+      console.log('uploaded playlist with id: ', id);
     } catch (error) {
-      refreshGoogleToken();
+      console.log(error);
+      // refreshGoogleToken();
     }
   }
 }
 
 const refreshGoogleToken = async () => {
   try {
-    const response = await fetch('http://127.0.0.1:8000/v1/auth/refresh', {
+    const response = await fetch('http://127.0.0.1:8000/v1/google/refresh', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('google_token')}`
