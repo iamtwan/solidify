@@ -9,7 +9,6 @@ export default function Playlists({ playlists }: {
   playlists: PlaylistInterface[]
 }) {
   const [checkedPlaylists, setCheckedPlaylists] = useState<{ [key: string]: boolean }>({});
-  const [csvData, setCsvData] = useState<string[][]>([]); 
 
   useEffect(() => {
     let tempPlaylists: { [key: string]: boolean } = {};
@@ -30,7 +29,6 @@ export default function Playlists({ playlists }: {
 
   const handleSelectAll = () => {
     const isAnyChecked = isAnyPlaylistChecked();
-
     const updatedPlaylists = Object.keys(checkedPlaylists).reduce((acc, playlistId) => {
       acc[playlistId] = !isAnyChecked;
       return acc;
@@ -84,7 +82,50 @@ const downloadSelected = async () => {
       link.click();
       document.body.removeChild(link);
   }
-};
+}
+
+const uploadSelected = async () => {
+  for (const [id, checked] of Object.entries(checkedPlaylists)) {
+    if (!checked) continue;
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('google_token')}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload playlist with id: ' + id);
+      }
+    } catch (error) {
+      refreshGoogleToken();
+    }
+  }
+}
+
+const refreshGoogleToken = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/v1/auth/refresh', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('google_token')}`
+      }
+    });
+  
+    if (!response.ok) {
+      throw new Error('Failed to refresh google token');
+    }
+  
+    const data = await response.json();
+    localStorage.setItem('google_token', data['new jwt']);
+    console.log(data);
+  } catch (error) {
+    // login google
+    console.log(error);
+  }
+}
 
   return <div>
     <label>
@@ -92,6 +133,7 @@ const downloadSelected = async () => {
       Select all
     </label>
     <button onClick={downloadSelected}>Download selected</button>
+    <button onClick={uploadSelected}>Uploaded selected</button>
     {playlists.map(playlist => {
     return <Playlist key={playlist.id} 
       playlist={playlist} 

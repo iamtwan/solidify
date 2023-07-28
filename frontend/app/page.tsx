@@ -71,7 +71,7 @@ export default function Home() {
 
   const googleLogin = () => login('http://127.0.0.1:8000/v1/auth/google/login');
 
-  const test = async () => {
+  const fetchPlaylists = async () => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/v1/spotify/all`, {
         headers: {
@@ -79,6 +79,11 @@ export default function Home() {
         }
       });
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch playlists');
+      }
+
       setPlaylists(data.playlists);
     } catch (error) {
       console.log(error);
@@ -95,7 +100,7 @@ export default function Home() {
         <CSVLink data={csvData}>Download</CSVLink>
         <button onClick={spotifyLogin}>Spotify Login</button>
         <GoogleButton onClick={googleLogin} />      
-        <button onClick={test}>Get all playlists</button>
+        <button onClick={fetchPlaylists}>Get all playlists</button>
         <Playlists playlists={playlists}/>
       </div>
     </main>
