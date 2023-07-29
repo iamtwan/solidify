@@ -48,41 +48,32 @@ export default function Playlists({ playlists }: {
                 'Authorization': `Bearer ${localStorage.getItem('spotify_token')}`
             }
         });
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch (error) {
         console.error(error);
+        return [];
     }
-
-    return [];
 }
 
 const downloadSelected = async () => {
   for (const [id, checked] of Object.entries(checkedPlaylists)) {
-    if (checked) {
+      if (!checked) continue;
+
       const playlist = playlists.find(playlist => playlist.id === id) || {} as PlaylistInterface;
       const data = await fetchItems(id);
-      const tracks = [];
-      
-      for (const item of data.items) {
-        const track = [item.track.name, item.track.album.name];
-        const artists = [];
-
-        for (let artist of item.track.artists) {
-          artists.push(artist.name);
-        }
-
-        track.push(artists);
-        tracks.push(track);
-      }
+      const tracks = data.items.map((item: any) => [
+          item.track.name,
+          item.track.album.name,
+          item.track.artists.map((artist: any) => artist.name)
+      ]);
 
       const csvInfo = [
-        ['Name', playlist.name], 
-        ['Total', data.total], 
-        ['Track Name', 'Album Name', 'Artist Names'], 
-        ...tracks
+          ['Name', playlist.name],
+          ['Total', data.total],
+          ['Track Name', 'Album Name', 'Artist Names'],
+          ...tracks
       ];
-      
+
       const csv = Papa.unparse(csvInfo);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
@@ -92,9 +83,8 @@ const downloadSelected = async () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }
   }
-}
+};
 
   return <div>
     <label>
