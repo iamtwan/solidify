@@ -5,7 +5,6 @@ import os
 
 
 ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_SECONDS = 3600
 
 
 def create_access_token(

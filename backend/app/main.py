@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from .api.v1.routes import playlists, spotify_auth
+from .api.v1.routes import playlists, spotify_auth, google_auth
 from dotenv import load_dotenv
 from .api.v1.dependencies import get_spotify_service
 
@@ -24,6 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(spotify_auth.router, prefix='/v1/auth')
+app.include_router(google_auth.router, prefix='/v1/auth')
 app.include_router(
     playlists.router,
     prefix='/v1/playlists',
