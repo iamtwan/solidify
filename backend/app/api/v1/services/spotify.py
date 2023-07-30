@@ -1,6 +1,8 @@
 import requests
 import base64
 import time
+import csv
+import io
 
 
 class SpotifyService:
@@ -65,9 +67,26 @@ class SpotifyService:
         headers = {'Authorization': f'Bearer {self.token}'}
 
         response = requests.get(url, headers=headers)
+        print(response.content)
         response.raise_for_status()
 
         return response.json()
+
+    def playlist_to_csv(self, playlist):
+        output = io.StringIO()
+        fieldnames = ["track_name", "artist_name", "album_name"]
+        writer = csv.DictWriter(output, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for item in playlist['items']:
+            track = item['track']
+            writer.writerow({
+                "track_name": track['name'],
+                "artist_name": ', '.join(artist['name'] for artist in track['artists']),
+                "album_name": track['album']['name'],
+            })
+
+        return output.getvalue()
 
     def get_protected_playlist(self, playlist_id):
         self.check_access_token()
@@ -79,7 +98,13 @@ class SpotifyService:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
 
-        return response.json()
+        playlist = response.json()
+        csv_string = self.playlist_to_csv(playlist)
+        from ..dependencies import get_redis
+        redis = get_redis()
+        redis.set(f'{playlist_id}_csv', csv_string, ex=3600)
+
+        return playlist
 
     def get_playlist(self, playlist_id):
         self.check_access_token()
@@ -91,4 +116,10 @@ class SpotifyService:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
 
-        return response.json()
+        playlist = response.json()
+        csv_string = self.playlist_to_csv(playlist)
+        from ..dependencies import get_redis
+        redis = get_redis()
+        redis.set(f'{playlist_id}_csv', csv_string, ex=3600)
+
+        return playlist

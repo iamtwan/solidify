@@ -46,7 +46,6 @@ def process_oauth_callback(
         valid = redis.get(f'{state}_{service}_state')
         if valid:
             valid = valid.decode('utf-8')
-        print('Valid variable:', valid)
         if not valid or valid != 'valid':
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

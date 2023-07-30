@@ -16,8 +16,7 @@ def create_access_token(
 
     Parameters:
         subject (str): The subject of the token (typically a user identifier).
-        expires_delta (Optional[timedelta]): The lifespan of the token. If not
-        provided, the default value will be used (ACCESS_TOKEN_EXPIRE_MINUTES).
+        expires_delta (Optional[timedelta]): The lifespan of the token.
 
     Returns:
         str: The encoded JWT as a string.

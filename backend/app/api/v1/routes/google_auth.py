@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, Depends, Request
 from ..utils.auth import generate_auth_url, process_oauth_callback, check_env_var
-from ..dependencies import get_redis, get_current_user_id
+from ..dependencies import get_redis, get_current_user_jwt
 from ..utils.jwt import create_access_token
 from datetime import timedelta
 import uuid
@@ -14,9 +14,8 @@ router = APIRouter()
 @router.get('/google/login')
 def login(request: Request, redis=Depends(get_redis)):
     client_id = check_env_var('GOOGLE_CLIENT_ID')
-    try:
-        jw_token = get_current_user_id(request)
-    except HTTPException:
+    jw_token = get_current_user_jwt(request)
+    if not jw_token:
         jw_token = create_access_token(
             subject=str(uuid.uuid4()),
             expires_delta=timedelta(hours=1)
