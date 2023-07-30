@@ -1,20 +1,19 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, Depends, Request
 from ..utils.auth import generate_auth_url, process_oauth_callback, check_env_var
-from ..utils.jwt import create_access_token
 from ..dependencies import get_redis, get_current_user_jwt
+from ..utils.jwt import create_access_token
 from datetime import timedelta
 import uuid
 
 
-SCOPE = 'playlist-read-private'
-SHOW_DIALOG = 'false'
+SCOPE = 'https://www.googleapis.com/auth/drive.file'
 
 router = APIRouter()
 
 
-@router.get('/spotify/login')
+@router.get('/google/login')
 def login(request: Request, redis=Depends(get_redis)):
-    client_id = check_env_var('SPOTIFY_CLIENT_ID')
+    client_id = check_env_var('GOOGLE_CLIENT_ID')
     jw_token = get_current_user_jwt(request)
     if not jw_token:
         jw_token = create_access_token(
@@ -22,27 +21,27 @@ def login(request: Request, redis=Depends(get_redis)):
             expires_delta=timedelta(hours=1)
         )
     state = jw_token
-    redis.set(f'{state}_spotify_state', 'valid', ex=600)
+    redis.set(f'{state}_google_state', 'valid', ex=600)
     auth_url = generate_auth_url(
-        'https://accounts.spotify.com/authorize',
+        'https://accounts.google.com/o/oauth2/v2/auth',
         client_id,
         SCOPE,
         state,
-        {'show_dialog': SHOW_DIALOG}
+        {'access_type': 'offline', 'prompt': 'consent'}
     )
     return {'url': auth_url, 'jw_token': jw_token}
 
 
-@router.get('/spotify/callback')
+@router.get('/google/callback')
 def callback(code: str, state: str, redis=Depends(get_redis)):
-    service = 'spotify'
-    token_url = 'https://accounts.spotify.com/api/token'
+    service = 'google'
+    token_url = 'https://oauth2.googleapis.com/token'
     return process_oauth_callback(
         code,
         state,
         service,
         token_url,
-        check_env_var('SPOTIFY_CLIENT_ID'),
-        check_env_var('SPOTIFY_CLIENT_SECRET'),
+        check_env_var('GOOGLE_CLIENT_ID'),
+        check_env_var('GOOGLE_CLIENT_SECRET'),
         redis
     )
