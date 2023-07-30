@@ -49,7 +49,7 @@ export default function Playlists({ playlists }: {
             }
         });
         const data = await response.json();
-        return data.items;
+        return data;
     } catch (error) {
         console.error(error);
     }
@@ -60,13 +60,34 @@ export default function Playlists({ playlists }: {
 const downloadSelected = async () => {
   for (const [id, checked] of Object.entries(checkedPlaylists)) {
     if (checked) {
-      const csvData = await fetchItems(id);
-      console.log(csvData);
-      const csv = Papa.unparse(csvData);
+      const playlist = playlists.find(playlist => playlist.id === id) || {} as PlaylistInterface;
+      const data = await fetchItems(id);
+      const tracks = [];
+      
+      for (const item of data.items) {
+        const track = [item.track.name, item.track.album.name];
+        const artists = [];
+
+        for (let artist of item.track.artists) {
+          artists.push(artist.name);
+        }
+
+        track.push(artists);
+        tracks.push(track);
+      }
+
+      const csvInfo = [
+        ['Name', playlist.name], 
+        ['Total', data.total], 
+        ['Track Name', 'Album Name', 'Artist Names'], 
+        ...tracks
+      ];
+      
+      const csv = Papa.unparse(csvInfo);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `playlist_${id}.csv`;
+      link.download = `${playlist.name}.csv`;
       link.style.display = 'none';
       document.body.appendChild(link);
       link.click();
