@@ -8,7 +8,8 @@ export default function Callback() {
 
     const fetchToken = async (code: string, state: string) => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/v1/auth/callback?code=${code}&state=${state}`);
+            // const response = await fetch(`http://127.0.0.1:8000/v1/auth/spotify/callback?code=${code}&state=${state}`);
+            const response = await fetch(`http://127.0.0.1:8000/v1/auth/google/callback?code=${code}&state=${state}`);
             const data = await response.json();
 
             localStorage.setItem('jw-token', data.jw_token);

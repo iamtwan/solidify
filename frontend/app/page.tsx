@@ -4,6 +4,7 @@ import styles from './page.module.css'
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 import { CSVLink } from 'react-csv';
 import { useRouter } from 'next/navigation';
+import GoogleButton from 'react-google-button';
 
 export default function Home() {
   const [inputValue, setInputValue] = useState('4pUmha8MJtm7RQBEETaSaI');
@@ -53,17 +54,20 @@ export default function Home() {
     }
   };
 
-  const login = async () => {
+  const login = async (url: string) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/v1/auth/login');
+      const response = await fetch(url);
       const data = await response.json();
 
       router.push(data.url);
     } catch (error) {
       console.log(error);
     }
-
   }
+
+  const spotifyLogin = () => login('http://127.0.0.1:8000/v1/auth/spotify/login');
+
+  const googleLogin = () => login('http://127.0.0.1:8000/v1/auth/google/login');
 
   const test = async () => {
     try {
@@ -87,8 +91,8 @@ export default function Home() {
           <button type='submit'>Submit</button>
         </form>
         <CSVLink data={csvData}>Download</CSVLink>
-        <button onClick={login}>Login</button>
-        <button onClick={test}>Test</button>
+        <button onClick={spotifyLogin}>Spotify Login</button>
+        <GoogleButton onClick={googleLogin} />      
       </div>
     </main>
   )
