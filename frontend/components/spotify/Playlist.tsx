@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import PlaylistInterface from './PlaylistInterface';
 
 export default function Playlist({ playlist, checked, handleCheckboxChange }: {
@@ -5,6 +8,7 @@ export default function Playlist({ playlist, checked, handleCheckboxChange }: {
     checked: boolean,
     handleCheckboxChange: Function
 }) {
+
     return <label>
         <input type='checkbox' checked={checked} onChange={() => handleCheckboxChange(playlist)}/>
         {playlist.name}

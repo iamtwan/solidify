@@ -79,7 +79,6 @@ export default function Home() {
         }
       });
       const data = await response.json();
-      console.log(data);
       setPlaylists(data.playlists);
     } catch (error) {
       console.log(error);
