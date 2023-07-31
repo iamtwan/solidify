@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, Request
-from ..utils.auth import generate_auth_url, process_oauth_callback, check_env_var
+from ..utils.auth import generate_auth_url, check_env_var
 from ..dependencies import get_redis, get_current_user_jwt
 from ..utils.jwt import create_access_token
+from ..services.auth import process_oauth_callback
 from datetime import timedelta
 import uuid
 
 
 SCOPE = 'https://www.googleapis.com/auth/drive.file'
+SERVICE = 'google'
 
 router = APIRouter()
 
@@ -22,11 +24,13 @@ def login(request: Request, redis=Depends(get_redis)):
         )
     state = jw_token
     redis.set(f'{state}_google_state', 'valid', ex=600)
+
     auth_url = generate_auth_url(
         'https://accounts.google.com/o/oauth2/v2/auth',
         client_id,
         SCOPE,
         state,
+        SERVICE,
         {'access_type': 'offline', 'prompt': 'consent'}
     )
     return {'url': auth_url, 'jw_token': jw_token}
@@ -34,12 +38,11 @@ def login(request: Request, redis=Depends(get_redis)):
 
 @router.get('/google/callback')
 def callback(code: str, state: str, redis=Depends(get_redis)):
-    service = 'google'
     token_url = 'https://oauth2.googleapis.com/token'
     return process_oauth_callback(
         code,
         state,
-        service,
+        SERVICE,
         token_url,
         check_env_var('GOOGLE_CLIENT_ID'),
         check_env_var('GOOGLE_CLIENT_SECRET'),
