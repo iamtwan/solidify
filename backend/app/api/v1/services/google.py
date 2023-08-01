@@ -1,6 +1,4 @@
 import requests
-import base64
-import time
 
 from typing import Optional, Any
 
@@ -19,11 +17,9 @@ class GoogleService:
         self.client_secret = client_secret
         self.token = access_token
         self.refresh_token = refresh_token
-        self.token_expires = 0
 
     @property
     def headers(self) -> dict:
-        self.check_access_token()
         return {'Authorization': f'Bearer {self.token}'}
 
     def _request_token(self, data: dict) -> None:
@@ -32,11 +28,6 @@ class GoogleService:
 
         token_data = response.json()
         self.token = token_data['access_token']
-        self.token_expires = time.time() + token_data['expires_in']
-
-    def check_access_token(self) -> None:
-        if not self.token or time.time() > self.token_expires:
-            self.refresh_access_token()
 
     def refresh_access_token(self) -> Any:
         if not self.refresh_token:
@@ -51,7 +42,7 @@ class GoogleService:
 
         self._request_token(data)
 
-        # return self.token
+        return self.token
 
     def upload_file(self, playlist_id, csv_string) -> Any:
         url = f'{self.base_url}/files?uploadType=multipart'

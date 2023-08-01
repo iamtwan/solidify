@@ -1,6 +1,5 @@
 import requests
 import base64
-import time
 import csv
 import io
 
@@ -22,34 +21,26 @@ class SpotifyService:
         self.client_secret = client_secret
         self.token = access_token
         self.refresh_token = refresh_token
-        self.token_expires = 0
         if not access_token:
             self.authenticate()
 
     @property
     def headers(self) -> dict:
-        self.check_access_token()
         return {'Authorization': f'Bearer {self.token}'}
 
-    def _request_token(self, data: dict) -> None:
-        auth_string = base64.b64encode(
-            f'{self.client_id}:{self.client_secret}'.encode('utf-8')).decode('utf-8')
-        headers = {'Authorization': f'Basic {auth_string}'}
-
+    def _request_token(self, data: dict, headers: dict) -> None:
         response = requests.post(self.token_url, headers=headers, data=data)
         response.raise_for_status()
 
         token_data = response.json()
         self.token = token_data['access_token']
-        self.token_expires = time.time() + token_data['expires_in']
 
     def authenticate(self) -> None:
+        auth_string = base64.b64encode(
+            f'{self.client_id}:{self.client_secret}'.encode('utf-8')).decode('utf-8')
+        headers = {'Authorization': f'Basic {auth_string}'}
         data = {'grant_type': 'client_credentials'}
-        self._request_token(data)
-
-    def check_access_token(self) -> None:
-        if not self.token or time.time() > self.token_expires:
-            self.refresh_access_token()
+        self._request_token(data, headers)
 
     def refresh_access_token(self) -> Any:
         if not self.refresh_token:
@@ -60,9 +51,13 @@ class SpotifyService:
             'refresh_token': self.refresh_token
         }
 
-        self._request_token(data)
+        auth_string = base64.b64encode(
+            f'{self.client_id}:{self.client_secret}'.encode('utf-8')).decode('utf-8')
+        headers = {'Authorization': f'Basic {auth_string}'}
 
-        # return self.token
+        self._request_token(data, headers)
+
+        return self.token
 
     def get_all_playlists(self) -> Any:
         fields = 'items(id,name,public)'
@@ -107,6 +102,7 @@ class SpotifyService:
         return playlist
 
     def get_playlist(self, playlist_id: str) -> Any:
+        print(self.token)
         fields = 'name,tracks.total,tracks.items(track(name,artists(name),album(name)))'
         url = f'{self.base_url}/playlists/{playlist_id}?fields={fields}'
 
@@ -114,7 +110,7 @@ class SpotifyService:
         response.raise_for_status()
 
         playlist = response.json()
-        self.cache_playlist(playlist_id, playlist)
+        # self.cache_playlist(playlist_id, playlist)
 
         return playlist
 

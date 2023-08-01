@@ -24,15 +24,6 @@ def get_protected_playlist(
     return playlist
 
 
-@router.get('/{playlist_id}', tags=['Spotify'])
-def get_playlist(
-    playlist_id: str,
-    spotify_service: SpotifyService = Depends(get_spotify_service)
-):
-    playlist = spotify_service.get_playlist(playlist_id)
-    return playlist
-
-
 @router.get('/user', tags=['Spotify'])
 def check_token_validity(
     spotify_service: SpotifyService = Depends(get_user_spotify_service)
@@ -48,3 +39,12 @@ def check_token_validity(
                 status_code=500,
                 detail='Unexpected error while checking token validity',
             )
+
+
+@router.get('/{playlist_id}', tags=['Spotify'])
+def get_playlist(
+    playlist_id: str,
+    spotify_service: SpotifyService = Depends(get_spotify_service)
+):
+    playlist = spotify_service.get_playlist(playlist_id)
+    return playlist
