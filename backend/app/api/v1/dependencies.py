@@ -130,16 +130,16 @@ def user_spotify_service_refresh(
 ):
     from .services.spotify import SpotifyService
 
-    access_token_raw = redis.get(f'{jw_token}_google_access_token')
-    refresh_token_raw = redis.get(f'{jw_token}_google_refresh_token')
+    access_token_raw = redis.get(f'{jw_token}_spotify_access_token')
+    refresh_token_raw = redis.get(f'{jw_token}_spotify_refresh_token')
 
     if access_token_raw is None or refresh_token_raw is None:
         return None
 
     access_token = access_token_raw.decode('utf-8')
     refresh_token = refresh_token_raw.decode('utf-8')
-    client_id = os.getenv('GOOGLE_CLIENT_ID')
-    client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+    client_id = os.getenv('SPOTIFY_CLIENT_ID')
+    client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
     return SpotifyService(
         client_id,
         client_secret,
