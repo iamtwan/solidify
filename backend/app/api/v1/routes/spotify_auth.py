@@ -7,14 +7,14 @@ from datetime import timedelta
 import uuid
 
 
-SCOPE = 'playlist-read-private'
+SCOPE = 'playlist-read-private user-read-private'
 SHOW_DIALOG = 'false'
 SERVICE = 'spotify'
 
 router = APIRouter()
 
 
-@router.get('/spotify/login')
+@router.get('/spotify/login', tags=['Authorization'])
 def login(request: Request, redis=Depends(get_redis)):
     client_id = check_env_var('SPOTIFY_CLIENT_ID')
     jw_token = get_current_user_jwt(request)
@@ -36,7 +36,7 @@ def login(request: Request, redis=Depends(get_redis)):
     return {'url': auth_url, 'jw_token': jw_token}
 
 
-@router.get('/spotify/callback')
+@router.get('/spotify/callback', tags=['Authorization'])
 def callback(code: str, state: str, redis=Depends(get_redis)):
     token_url = 'https://accounts.spotify.com/api/token'
     return process_oauth_callback(

@@ -13,7 +13,7 @@ SERVICE = 'google'
 router = APIRouter()
 
 
-@router.get('/google/login')
+@router.get('/google/login', tags=['Authorization'])
 def login(request: Request, redis=Depends(get_redis)):
     client_id = check_env_var('GOOGLE_CLIENT_ID')
     jw_token = get_current_user_jwt(request)
@@ -36,7 +36,7 @@ def login(request: Request, redis=Depends(get_redis)):
     return {'url': auth_url, 'jw_token': jw_token}
 
 
-@router.get('/google/callback')
+@router.get('/google/callback', tags=['Authorization'])
 def callback(code: str, state: str, redis=Depends(get_redis)):
     token_url = 'https://oauth2.googleapis.com/token'
     return process_oauth_callback(
