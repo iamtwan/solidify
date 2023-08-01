@@ -22,8 +22,8 @@ class GoogleService:
     def headers(self) -> dict:
         return {'Authorization': f'Bearer {self.token}'}
 
-    def _request_token(self, data: dict) -> None:
-        response = requests.post(self.token_url, data=data)
+    def _request_token(self, data: dict, headers: dict) -> None:
+        response = requests.post(self.token_url, headers=headers, data=data)
         response.raise_for_status()
 
         token_data = response.json()

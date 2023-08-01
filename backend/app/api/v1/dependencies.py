@@ -1,15 +1,14 @@
-import os
-import redis
 from fastapi import HTTPException, status, Depends, Request
+import redis
+import os
 
 
 ALGORITHM = 'HS256'
 
 
 def get_redis():
-    return redis.Redis(host='localhost', port=6379, db=0)
-# def get_redis():
-#     return redis.Redis(host='redis', port=6379, db=0)
+    redis_host = os.getenv('REDIS_HOST', 'redis')
+    return redis.Redis(host=redis_host, port=6379, db=0)
 
 
 def get_spotify_service():
