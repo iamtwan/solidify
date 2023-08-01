@@ -1,7 +1,5 @@
 import os
 import redis
-from .services.spotify import SpotifyService
-from .services.google import GoogleService
 from fastapi import HTTPException, status, Depends, Request
 
 
@@ -13,6 +11,7 @@ def get_redis():
 
 
 def get_spotify_service():
+    from .services.spotify import SpotifyService
     client_id = os.getenv('SPOTIFY_CLIENT_ID')
     client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
     return SpotifyService(client_id, client_secret)
@@ -43,6 +42,8 @@ def get_user_spotify_service(
         jw_token: str = Depends(get_current_user_jwt),
         redis=Depends(get_redis)
 ):
+    from .services.spotify import SpotifyService
+
     access_token_raw = redis.get(f'{jw_token}_spotify_access_token')
     refresh_token_raw = redis.get(f'{jw_token}_spotify_refresh_token')
 
@@ -69,6 +70,8 @@ def get_user_google_service(
         jw_token: str = Depends(get_current_user_jwt),
         redis=Depends(get_redis)
 ):
+    from .services.google import GoogleService
+
     access_token_raw = redis.get(f'{jw_token}_google_access_token')
     refresh_token_raw = redis.get(f'{jw_token}_google_refresh_token')
 
@@ -80,12 +83,11 @@ def get_user_google_service(
 
     access_token = access_token_raw.decode('utf-8')
     refresh_token = refresh_token_raw.decode('utf-8')
-
-    # client_id = os.getenv('GOOGLE_CLIENT_ID')
-    # client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+    client_id = os.getenv('GOOGLE_CLIENT_ID')
+    client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
     return GoogleService(
-        # client_id,
-        # client_secret,
+        client_id,
+        client_secret,
         access_token,
         refresh_token
     )
