@@ -41,7 +41,7 @@ def store_refreshed_tokens(
     service_name: str
 ) -> None:
     if service is None:
-        print(f"No {service_name} service connected")
+        print(f'No {service_name} service connected')
         return
     refresh_token = redis.get(f'{old_jwt}_{service_name}_refresh_token')
     if refresh_token is not None:
@@ -52,7 +52,9 @@ def store_refreshed_tokens(
                 f'{new_jwt}_{service_name}_access_token',
                 new_access_token, ex=3600
             )
+            redis.delete(f'{old_jwt}_{service_name}_access_token')
             redis.set(
                 f'{new_jwt}_{service_name}_refresh_token',
                 refresh_token, ex=3600
             )
+            redis.delete(f'{old_jwt}_{service_name}_refresh_token')
