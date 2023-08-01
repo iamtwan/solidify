@@ -4,15 +4,18 @@ import time
 import csv
 import io
 
+from typing import Optional, Any
+from ..dependencies import get_redis
+
 
 class SpotifyService:
     def __init__(
             self,
-            client_id,
-            client_secret,
-            access_token=None,
-            refresh_token=None
-    ):
+            client_id: str,
+            client_secret: str,
+            access_token: Optional[str] = None,
+            refresh_token: Optional[str] = None
+    ) -> None:
         self.base_url = 'https://api.spotify.com/v1'
         self.token_url = 'https://accounts.spotify.com/api/token'
         self.client_id = client_id
@@ -23,11 +26,15 @@ class SpotifyService:
         if not access_token:
             self.authenticate()
 
-    def authenticate(self):
+    @property
+    def headers(self) -> dict:
+        self.check_access_token()
+        return {'Authorization': f'Bearer {self.token}'}
+
+    def _request_token(self, data: dict) -> None:
         auth_string = base64.b64encode(
             f'{self.client_id}:{self.client_secret}'.encode('utf-8')).decode('utf-8')
         headers = {'Authorization': f'Basic {auth_string}'}
-        data = {'grant_type': 'client_credentials'}
 
         response = requests.post(self.token_url, headers=headers, data=data)
         response.raise_for_status()
@@ -36,43 +43,37 @@ class SpotifyService:
         self.token = token_data['access_token']
         self.token_expires = time.time() + token_data['expires_in']
 
-    def check_access_token(self):
+    def authenticate(self) -> None:
+        data = {'grant_type': 'client_credentials'}
+        self._request_token(data)
+
+    def check_access_token(self) -> None:
         if not self.token or time.time() > self.token_expires:
             self.refresh_access_token()
 
-    def refresh_access_token(self):
+    def refresh_access_token(self) -> Any:
         if not self.refresh_token:
             return
 
-        auth_string = base64.b64encode(
-            f'{self.client_id}:{self.client_secret}'.encode('utf-8')).decode('utf-8')
-        headers = {'Authorization': f'Basic {auth_string}'}
         data = {
             'grant_type': 'refresh_token',
             'refresh_token': self.refresh_token
         }
 
-        response = requests.post(self.token_url, headers=headers, data=data)
-        response.raise_for_status()
+        self._request_token(data)
 
-        token_data = response.json()
-        self.token = token_data['access_token']
-        self.token_expires = time.time() + token_data['expires_in']
+        # return self.token
 
-    def get_all_playlists(self):
-        self.check_access_token()
-
+    def get_all_playlists(self) -> Any:
         fields = 'items(id,name,public)'
         url = f'{self.base_url}/me/playlists?fields={fields}'
-        headers = {'Authorization': f'Bearer {self.token}'}
 
-        response = requests.get(url, headers=headers)
-        print(response.content)
+        response = requests.get(url, headers=self.headers)
         response.raise_for_status()
 
         return response.json()
 
-    def playlist_to_csv(self, playlist):
+    def playlist_to_csv(self, playlist: dict) -> str:
         output = io.StringIO()
         fieldnames = ["track_name", "artist_name", "album_name"]
         writer = csv.DictWriter(output, fieldnames=fieldnames)
@@ -88,38 +89,39 @@ class SpotifyService:
 
         return output.getvalue()
 
-    def get_protected_playlist(self, playlist_id):
-        self.check_access_token()
+    def cache_playlist(self, playlist_id: str, playlist: dict) -> None:
+        csv_string = self.playlist_to_csv(playlist)
+        redis = get_redis()
+        redis.set(f'{playlist_id}_csv', csv_string, ex=3600)
 
+    def get_protected_playlist(self, playlist_id: str) -> Any:
         fields = 'total,items(track(name,artists(name),album(name)))'
         url = f'{self.base_url}/playlists/{playlist_id}/tracks?fields={fields}'
-        headers = {'Authorization': f'Bearer {self.token}'}
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=self.headers)
         response.raise_for_status()
 
         playlist = response.json()
-        csv_string = self.playlist_to_csv(playlist)
-        from ..dependencies import get_redis
-        redis = get_redis()
-        redis.set(f'{playlist_id}_csv', csv_string, ex=3600)
+        self.cache_playlist(playlist_id, playlist)
 
         return playlist
 
-    def get_playlist(self, playlist_id):
-        self.check_access_token()
-
+    def get_playlist(self, playlist_id: str) -> Any:
         fields = 'name,tracks.total,tracks.items(track(name,artists(name),album(name)))'
         url = f'{self.base_url}/playlists/{playlist_id}?fields={fields}'
-        headers = {'Authorization': f'Bearer {self.token}'}
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=self.headers)
         response.raise_for_status()
 
         playlist = response.json()
-        csv_string = self.playlist_to_csv(playlist)
-        from ..dependencies import get_redis
-        redis = get_redis()
-        redis.set(f'{playlist_id}_csv', csv_string, ex=3600)
+        self.cache_playlist(playlist_id, playlist)
 
         return playlist
+
+    def get_user_profile(self) -> Any:
+        url = f'{self.base_url}/me'
+
+        response = requests.get(url, headers=self.headers)
+        response.raise_for_status()
+
+        return response.json()

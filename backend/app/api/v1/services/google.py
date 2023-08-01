@@ -1,22 +1,59 @@
 import requests
+import base64
+import time
+
+from typing import Optional, Any
 
 
 class GoogleService:
     def __init__(
             self,
-            access_token=None,
-            refresh_token=None
+            client_id: str,
+            client_secret: str,
+            access_token: Optional[str] = None,
+            refresh_token: Optional[str] = None
     ):
         self.base_url = 'https://www.googleapis.com/upload/drive/v3'
         self.token_url = 'https://oauth2.googleapis.com/token'
+        self.client_id = client_id
+        self.client_secret = client_secret
         self.token = access_token
         self.refresh_token = refresh_token
+        self.token_expires = 0
 
-    # def check_access_token(self):
-    #     if not self.token or time.time() > self.token_expires:
-    #         self.refresh_access_token()
+    @property
+    def headers(self) -> dict:
+        self.check_access_token()
+        return {'Authorization': f'Bearer {self.token}'}
 
-    def upload_file(self, playlist_id, csv_string):
+    def _request_token(self, data: dict) -> None:
+        response = requests.post(self.token_url, data=data)
+        response.raise_for_status()
+
+        token_data = response.json()
+        self.token = token_data['access_token']
+        self.token_expires = time.time() + token_data['expires_in']
+
+    def check_access_token(self) -> None:
+        if not self.token or time.time() > self.token_expires:
+            self.refresh_access_token()
+
+    def refresh_access_token(self) -> Any:
+        if not self.refresh_token:
+            return
+
+        data = {
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'grant_type': 'refresh_token',
+            'refresh_token': self.refresh_token
+        }
+
+        self._request_token(data)
+
+        # return self.token
+
+    def upload_file(self, playlist_id, csv_string) -> Any:
         url = f'{self.base_url}/files?uploadType=multipart'
         boundary = 'foo_bar_baz'
         body = (
