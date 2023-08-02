@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from ..services.spotify import SpotifyService
 from ..services.google import GoogleService
-from ..dependencies import get_redis, get_current_user_jwt, user_spotify_service_refresh, user_google_service_refresh
+from ..dependencies import get_redis, get_current_user_jwt, user_spotify_refresh, user_google_refresh
 from ..utils.jwt import create_access_token
 from ..utils.auth import store_refreshed_tokens
 from datetime import timedelta
@@ -14,8 +14,8 @@ router = APIRouter()
 async def refresh_user_session(
     redis=Depends(get_redis),
     old_jwt=Depends(get_current_user_jwt),
-    spotify_service: SpotifyService = Depends(user_spotify_service_refresh),
-    google_service: GoogleService = Depends(user_google_service_refresh)
+    spotify_service: SpotifyService = Depends(user_spotify_refresh),
+    google_service: GoogleService = Depends(user_google_refresh)
 ):
     new_jwt = create_access_token(
         subject=old_jwt,
