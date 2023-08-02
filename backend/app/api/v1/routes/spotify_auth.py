@@ -17,7 +17,7 @@ router = APIRouter()
 @router.get('/spotify/login', tags=['Authorization'])
 def login(request: Request, redis=Depends(get_redis)):
     client_id = check_env_var('SPOTIFY_CLIENT_ID')
-    jw_token = get_current_user_jwt(request)
+    jw_token = get_current_user_jwt(request, raise_error=False)
     if not jw_token:
         jw_token = create_access_token(
             subject=str(uuid.uuid4()),
