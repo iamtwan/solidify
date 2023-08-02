@@ -6,7 +6,7 @@ export default function Playlist({ playlist, checked, handleCheckboxChange }: {
     handleCheckboxChange: Function
 }) {
     return <label>
-        <input type='checkbox' checked={checked} onClick={() => handleCheckboxChange(playlist)}/>
+        <input type='checkbox' checked={checked} onChange={() => handleCheckboxChange(playlist)}/>
         {playlist.name}
     </label>
 }

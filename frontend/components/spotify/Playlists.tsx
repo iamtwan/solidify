@@ -17,7 +17,7 @@ export default function Playlists({ playlists }: {
     }
 
     setCheckedPlaylists(tempPlaylists);
-  }, playlists);
+  }, [playlists]);
 
   const handleCheckboxChange = (playlist: PlaylistInterface) => {
     setCheckedPlaylists(prevCheckedPlaylists => ({
@@ -39,13 +39,13 @@ export default function Playlists({ playlists }: {
 
   return <div>
     <label>
-      <input type='checkbox' checked={isAnyPlaylistChecked()} onClick={handleSelectAll} />
+      <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
       Select all
     </label>
     {playlists.map(playlist => {
     return <Playlist key={playlist.id} 
       playlist={playlist} 
-      checked={checkedPlaylists[playlist.id]}
+      checked={checkedPlaylists[playlist.id] || false}
       handleCheckboxChange={handleCheckboxChange}
     />
   })}
