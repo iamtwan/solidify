@@ -102,7 +102,6 @@ class SpotifyService:
         return playlist
 
     def get_playlist(self, playlist_id: str) -> Any:
-        print(self.token)
         fields = 'name,tracks.total,tracks.items(track(name,artists(name),album(name)))'
         url = f'{self.base_url}/playlists/{playlist_id}?fields={fields}'
 

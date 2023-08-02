@@ -1,17 +1,17 @@
 from fastapi import HTTPException, status, Depends, Request
+from .utils.auth import check_env_var
 import redis
-import os
 
 
 def get_redis():
-    redis_host = os.getenv('REDIS_HOST', 'redis')
+    redis_host = check_env_var('REDIS_HOST', 'redis')
     return redis.Redis(host=redis_host, port=6379, db=0)
 
 
 def get_spotify_service():
     from .services.spotify import SpotifyService
-    client_id = os.getenv('SPOTIFY_CLIENT_ID')
-    client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
+    client_id = check_env_var('SPOTIFY_CLIENT_ID')
+    client_secret = check_env_var('SPOTIFY_CLIENT_SECRET')
     return SpotifyService(client_id, client_secret)
 
 
@@ -49,13 +49,13 @@ def get_user_service(service, jw_token: str, redis, refresh: bool = False):
     services = {
         'spotify': {
             'service': SpotifyService,
-            'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
-            'client_secret': os.getenv('SPOTIFY_CLIENT_SECRET')
+            'client_id': check_env_var('SPOTIFY_CLIENT_ID'),
+            'client_secret': check_env_var('SPOTIFY_CLIENT_SECRET')
         },
         'google': {
             'service': GoogleService,
-            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
-            'client_secret': os.getenv('GOOGLE_CLIENT_SECRET')
+            'client_id': check_env_var('GOOGLE_CLIENT_ID'),
+            'client_secret': check_env_var('GOOGLE_CLIENT_SECRET')
         }
     }
 
