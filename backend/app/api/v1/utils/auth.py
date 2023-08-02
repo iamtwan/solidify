@@ -18,7 +18,7 @@ def generate_auth_url(
         SERVICE,
         extra_params={}
 ):
-    redirect_uri = os.getenv(
+    redirect_uri = check_env_var(
         f'{SERVICE}_REDIRECT_URI',
         'http://localhost:3000'
     )
