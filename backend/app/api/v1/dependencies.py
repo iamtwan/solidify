@@ -1,85 +1,104 @@
-import os
-import redis
-from .services.spotify import SpotifyService
 from fastapi import HTTPException, status, Depends, Request
-from jose import jwt, JWTError
-
-
-ALGORITHM = 'HS256'
+import redis
+import os
 
 
 def get_redis():
-    return redis.Redis(host='redis', port=6379, db=0)
+    redis_host = os.getenv('REDIS_HOST', 'redis')
+    return redis.Redis(host=redis_host, port=6379, db=0)
 
 
 def get_spotify_service():
-    client_id = os.getenv('CLIENT_ID')
-    client_secret = os.getenv('CLIENT_SECRET')
+    from .services.spotify import SpotifyService
+    client_id = os.getenv('SPOTIFY_CLIENT_ID')
+    client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
     return SpotifyService(client_id, client_secret)
 
 
-def get_current_user_id(request: Request):
+def get_current_user_jwt(request: Request):
     auth_header = request.headers.get('Authorization')
     if not auth_header:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Authorization header is missing',
-        )
+        # raise HTTPException(
+        #     status_code=status.HTTP_401_UNAUTHORIZED,
+        #     detail='No Authorization header',
+        # )
+        return None
+
     try:
         scheme, token = auth_header.split()
         if scheme.lower() != 'bearer':
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Invalid authorization scheme',
+                detail='Invalid authorization scheme, expected Bearer',
             )
 
-        secret_key = os.getenv('SECRET_KEY')
-        if not secret_key:
-            raise ValueError('SECRET_KEY is not set in the environment')
-        payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
-        subject = payload.get('sub')
+        return token
 
-        if subject is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Invalid token, subject is missing'
-            )
-
-        return subject
-
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Invalid or expired jw_token',
-        )
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Invalid authorization header',
+            detail='Invalid authorization header, expected Bearer token',
         )
 
 
-def get_user_spotify_service(
-        user_id: str = Depends(get_current_user_id),
-        redis=Depends(get_redis)
-):
-    access_token_raw = redis.get(f'{user_id}_access_token')
-    refresh_token_raw = redis.get(f'{user_id}_refresh_token')
+def get_user_service(service, jw_token: str, redis, refresh=False):
+    from .services.spotify import SpotifyService
+    from .services.google import GoogleService
+
+    services = {
+        'spotify': {
+            'service': SpotifyService,
+            'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
+            'client_secret': os.getenv('SPOTIFY_CLIENT_SECRET')
+        },
+        'google': {
+            'service': GoogleService,
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+            'client_secret': os.getenv('GOOGLE_CLIENT_SECRET')
+        }
+    }
+
+    assert service in services, f'Service {service} not supported'
+
+    service_data = services[service]
+    service_class = service_data['service']
+
+    access_token_raw = redis.get(f'{jw_token}_{service}_access_token')
+    refresh_token_raw = redis.get(f'{jw_token}_{service}_refresh_token')
 
     if access_token_raw is None or refresh_token_raw is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Not authenticated',
-        )
+        if refresh:
+            return None
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f'Invalid token or user not authenticated for {service}'
+            )
 
     access_token = access_token_raw.decode('utf-8')
     refresh_token = refresh_token_raw.decode('utf-8')
+    client_id = service_data['client_id']
+    client_secret = service_data['client_secret']
 
-    client_id = os.getenv('CLIENT_ID')
-    client_secret = os.getenv('CLIENT_SECRET')
-    return SpotifyService(
+    return service_class(
         client_id,
         client_secret,
         access_token,
         refresh_token
     )
+
+
+def get_user_spotify_service(jw_token: str = Depends(get_current_user_jwt), redis=Depends(get_redis)):
+    return get_user_service('spotify', jw_token, redis)
+
+
+def user_spotify_refresh(jw_token: str = Depends(get_current_user_jwt), redis=Depends(get_redis)):
+    return get_user_service('spotify', jw_token, redis, refresh=True)
+
+
+def get_user_google_service(jw_token: str = Depends(get_current_user_jwt), redis=Depends(get_redis)):
+    return get_user_service('google', jw_token, redis)
+
+
+def user_google_refresh(jw_token: str = Depends(get_current_user_jwt), redis=Depends(get_redis)):
+    return get_user_service('google', jw_token, redis, refresh=True)
