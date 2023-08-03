@@ -5,10 +5,13 @@ import React, { ChangeEvent, FormEvent, useState } from 'react';
 import { CSVLink } from 'react-csv';
 import { useRouter } from 'next/navigation';
 import GoogleButton from 'react-google-button';
+import Playlists from '@/components/spotify/Playlists';
+import Playlist from '@/components/spotify/Playlist';
 
 export default function Home() {
   const [inputValue, setInputValue] = useState('4pUmha8MJtm7RQBEETaSaI');
   const [csvData, setCsvData] = useState<string[][]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
 
   const router = useRouter();
 
@@ -56,11 +59,7 @@ export default function Home() {
 
   const login = async (url: string) => {
     try {
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jw-token')}`
-        }
-      });
+      const response = await fetch(url);
       const data = await response.json();
       router.push(data.url);
     } catch (error) {
@@ -76,11 +75,12 @@ export default function Home() {
     try {
       const response = await fetch(`http://127.0.0.1:8000/v1/spotify/all`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jw-token')}`
+          'Authorization': `Bearer ${localStorage.getItem('spotify_token')}`
         }
       });
       const data = await response.json();
       console.log(data);
+      setPlaylists(data.playlists);
     } catch (error) {
       console.log(error);
     }
@@ -97,7 +97,7 @@ export default function Home() {
         <button onClick={spotifyLogin}>Spotify Login</button>
         <GoogleButton onClick={googleLogin} />      
         <button onClick={test}>Get all playlists</button>
-        <div>Test</div>
+        <Playlists playlists={playlists}/>
       </div>
     </main>
   )

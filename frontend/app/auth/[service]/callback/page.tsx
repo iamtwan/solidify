@@ -21,7 +21,10 @@ export default function Page({
             const url = new URL(`http://127.0.0.1:8000/v1/auth/${params.service}/callback`);
             url.search = urlParams.toString();
 
-            const response = await fetch(url);  
+            const response = await fetch(url);
+            const data = await response.json();
+
+            localStorage.setItem(`${params.service}_token`, data.jw_token);
         } catch (error) {
             console.log(error);
         }
