@@ -59,7 +59,7 @@ class SpotifyService:
 
         return self.token
 
-    def get_all_playlists(self) -> Any:
+    def get_all_playlists(self) -> dict:
         fields = 'items(id,name,public)'
         url = f'{self.base_url}/me/playlists?fields={fields}'
 
