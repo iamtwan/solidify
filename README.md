@@ -55,7 +55,7 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for more 
 
 ## Disclosure
 
-The Solidify app does not provide access to any music files. Solidify only provides .csv text with relevant playlist data respecting the Spotify's API. Solidify does not store any user data beyond the client session and does not require access to any critical user credentials and or resources.
+The Solidify app does not provide access to any music files. Solidify only provides simple .csv text with playlist data respecting the Spotify API. Solidify does not store any user data beyond the client session and does not require access to any critical user credentials and or resources.
 
 ## Acknowledgments
 
