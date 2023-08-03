@@ -15,7 +15,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-The only prerequisites are [Docker](https://www.docker.com/) (which will contain all necessary packages/libraries) as well as a Spotify (required) or Google (optional) developer credentials (for access to APIs).
+The only prerequisites are [Docker](https://www.docker.com/) (which will contain all necessary packages/libraries) as well as Spotify (required) or Google (optional) developer credentials (you will need to create an 'app' of your own).
 
 ### Installation
 
@@ -33,7 +33,7 @@ To install Solidify, follow these steps:
 
 ## Deployment
 
-The app is deployed at `https://www.solidify-exporter.com` for public use. However, users who wish to deploy the app themselves should follow the provided [Installation](https://github.com/iamtwan/solidify/edit/main/README.md#installation) instructions for local development deployment.
+The app is deployed at `https://www.solidify-exporter.com` for public use. However, users who wish to deploy the app themselves should follow the provided [Installation](https://github.com/iamtwan/solidify#installation) instructions for local development deployment.
 
 ## Built With
 
