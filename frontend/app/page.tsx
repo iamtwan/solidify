@@ -6,12 +6,12 @@ import { CSVLink } from 'react-csv';
 import { useRouter } from 'next/navigation';
 import GoogleButton from 'react-google-button';
 import Playlists from '@/components/spotify/Playlists';
-import Playlist from '@/components/spotify/Playlist';
+import PlaylistInterface from '@/components/spotify/PlaylistInterface';
 
 export default function Home() {
   const [inputValue, setInputValue] = useState('4pUmha8MJtm7RQBEETaSaI');
   const [csvData, setCsvData] = useState<string[][]>([]);
-  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [playlists, setPlaylists] = useState<PlaylistInterface[]>([]);
 
   const router = useRouter();
 
