@@ -7,7 +7,7 @@ Solidify is a lightweight Spotify playlist exporter tool designed to provide use
 - Export Spotify playlists into .csv format.
 - Option to download a .csv file, copy its contents to clipboard, or upload it to Google Drive.
 - Connect to your Spotify account to access both public and private playlists.
-- User-friendly web interface.
+- Single-page user-friendly web application interface.
 
 ## Getting Started
 
@@ -15,7 +15,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-The only prerequisite is Docker, which will contain all necessary software/packages/libraries.
+The only prerequisites are [Docker](https://www.docker.com/) (which will contain all necessary packages/libraries) as well as a Spotify (required) or Google (optional) developer credentials (for access to APIs).
 
 ### Installation
 
@@ -33,7 +33,7 @@ To install Solidify, follow these steps:
 
 ## Deployment
 
-The app will be deployed for public use. However, users who wish to deploy the app themselves should follow the provided Installation instructions for local deployment.
+The app is deployed at `https://www.solidify-exporter.com` for public use. However, users who wish to deploy the app themselves should follow the provided [Installation](https://github.com/iamtwan/solidify/edit/main/README.md#installation) instructions for local development deployment.
 
 ## Built With
 
@@ -55,7 +55,7 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for more 
 
 ## Disclosure
 
-The Solidify app does not provide access to any music files. Solidify only provides .csv text with relevant playlist data respecting the Spotify's API.
+The Solidify app does not provide access to any music files. Solidify only provides .csv text with relevant playlist data respecting the Spotify's API. Solidify does not store any user data beyond the client session and does not require access to any critical user credentials and or resources.
 
 ## Acknowledgments
 
