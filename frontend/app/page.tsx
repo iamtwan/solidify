@@ -74,7 +74,7 @@ export default function Home() {
 
   const test = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/v1/playlists/all`, {
+      const response = await fetch(`http://127.0.0.1:8000/v1/spotify/all`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('jw-token')}`
         }
@@ -96,6 +96,8 @@ export default function Home() {
         <CSVLink data={csvData}>Download</CSVLink>
         <button onClick={spotifyLogin}>Spotify Login</button>
         <GoogleButton onClick={googleLogin} />      
+        <button onClick={test}>Get all playlists</button>
+        <div>Test</div>
       </div>
     </main>
   )
