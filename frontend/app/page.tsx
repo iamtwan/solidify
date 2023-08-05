@@ -56,9 +56,12 @@ export default function Home() {
 
   const login = async (url: string) => {
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('jw-token')}`
+        }
+      });
       const data = await response.json();
-      console.log(data.url);
       router.push(data.url);
     } catch (error) {
       console.log(error);

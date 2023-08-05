@@ -21,7 +21,7 @@ export default function Page({
             const url = new URL(`http://127.0.0.1:8000/v1/auth/${params.service}/callback`);
             url.search = urlParams.toString();
 
-            const response = await fetch(url);
+            const response = await fetch(url);  
         } catch (error) {
             console.log(error);
         }
