@@ -9,7 +9,7 @@ import uuid
 
 SCOPE = 'playlist-read-private user-read-private'
 SHOW_DIALOG = 'false'
-SERVICE = 'spotify'
+SERVICE = 'SPOTIFY'
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ def login(request: Request, redis=Depends(get_redis)):
             expires_delta=timedelta(hours=1)
         )
     state = jw_token
-    redis.set(f'{state}_spotify_state', 'valid', ex=600)
+    redis.set(f'{state}_{SERVICE}_state', 'valid', ex=600)
     auth_url = generate_auth_url(
         'https://accounts.spotify.com/authorize',
         client_id,

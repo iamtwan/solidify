@@ -8,7 +8,7 @@ import uuid
 
 
 SCOPE = 'https://www.googleapis.com/auth/drive.file'
-SERVICE = 'google'
+SERVICE = 'GOOGLE'
 
 router = APIRouter()
 
@@ -23,7 +23,7 @@ def login(request: Request, redis=Depends(get_redis)):
             expires_delta=timedelta(hours=1)
         )
     state = jw_token
-    redis.set(f'{state}_google_state', 'valid', ex=600)
+    redis.set(f'{state}_{SERVICE}_state', 'valid', ex=600)
 
     auth_url = generate_auth_url(
         'https://accounts.google.com/o/oauth2/v2/auth',
