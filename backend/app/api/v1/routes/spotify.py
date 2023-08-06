@@ -47,7 +47,7 @@ class Playlist(BaseModel):
     items: List[Track]
 
 
-@router.get('/private/{playlist_id}', response_model=Playlist, tags=['Spotify'])
+@router.get('/private/{playlist_id}', tags=['Spotify'])
 def get_protected_playlist(
     playlist_id: str,
     spotify_service: SpotifyService = Depends(get_user_spotify_service)
@@ -77,7 +77,7 @@ def check_token_validity(
             )
 
 
-@router.get('/{playlist_id}', response_model=Playlist, tags=['Spotify'])
+@router.get('/{playlist_id}', tags=['Spotify'])
 def get_playlist(
     playlist_id: str,
     spotify_service: SpotifyService = Depends(get_spotify_service)
