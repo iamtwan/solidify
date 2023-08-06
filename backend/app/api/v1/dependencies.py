@@ -47,12 +47,12 @@ def get_user_service(service, jw_token: str, redis, refresh: bool = False):
     from .services.google import GoogleService
 
     services = {
-        'spotify': {
+        'SPOTIFY': {
             'service': SpotifyService,
             'client_id': check_env_var('SPOTIFY_CLIENT_ID'),
             'client_secret': check_env_var('SPOTIFY_CLIENT_SECRET')
         },
-        'google': {
+        'GOOGLE': {
             'service': GoogleService,
             'client_id': check_env_var('GOOGLE_CLIENT_ID'),
             'client_secret': check_env_var('GOOGLE_CLIENT_SECRET')
@@ -93,25 +93,25 @@ def get_user_spotify_service(
     jw_token: str = Depends(get_current_user_jwt),
     redis=Depends(get_redis)
 ):
-    return get_user_service('spotify', jw_token, redis)
+    return get_user_service('SPOTIFY', jw_token, redis)
 
 
 def user_spotify_refresh(
     jw_token: str = Depends(get_current_user_jwt),
     redis=Depends(get_redis)
 ):
-    return get_user_service('spotify', jw_token, redis, refresh=True)
+    return get_user_service('SPOTIFY', jw_token, redis, refresh=True)
 
 
 def get_user_google_service(
     jw_token: str = Depends(get_current_user_jwt),
     redis=Depends(get_redis)
 ):
-    return get_user_service('google', jw_token, redis)
+    return get_user_service('GOOGLE', jw_token, redis)
 
 
 def user_google_refresh(
     jw_token: str = Depends(get_current_user_jwt),
     redis=Depends(get_redis)
 ):
-    return get_user_service('google', jw_token, redis, refresh=True)
+    return get_user_service('GOOGLE', jw_token, redis, refresh=True)

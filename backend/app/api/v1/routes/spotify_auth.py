@@ -19,6 +19,7 @@ def login(redis=Depends(get_redis)):
     client_id = check_env_var('SPOTIFY_CLIENT_ID')
     state = str(uuid.uuid4())
     redis.set(f'{state}_{SERVICE}_state', 'valid', ex=600)
+
     auth_url = generate_auth_url(
         'https://accounts.spotify.com/authorize',
         client_id,
