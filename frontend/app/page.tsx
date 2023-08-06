@@ -58,7 +58,7 @@ export default function Home() {
     try {
       const response = await fetch(url);
       const data = await response.json();
-
+      console.log(data.url);
       router.push(data.url);
     } catch (error) {
       console.log(error);
