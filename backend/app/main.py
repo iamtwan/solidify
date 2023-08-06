@@ -1,13 +1,32 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .api.v1.routes import spotify, spotify_auth, google_auth, google, refresh
+from contextlib import asynccontextmanager
+from .api.v1.utils.auth import check_env_var
 from dotenv import load_dotenv
 from .api.v1.dependencies import get_spotify_service
 
 
 load_dotenv()
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    required_env_vars = [
+        'SECRET_KEY',
+        'SPOTIFY_CLIENT_ID',
+        'SPOTIFY_CLIENT_SECRET',
+        'SPOTIFY_REDIRECT_URI',
+        'GOOGLE_CLIENT_ID',
+        'GOOGLE_CLIENT_SECRET',
+        'GOOGLE_REDIRECT_URI',
+        'REDIS_HOST'
+    ]
+    for var in required_env_vars:
+        check_env_var(var)
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 # update for production
 origins = [

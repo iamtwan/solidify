@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
+from ..utils.auth import check_env_var
 import requests
-import os
 import traceback
 
 
@@ -13,7 +13,7 @@ def process_oauth_callback(
         client_secret,
         redis
 ):
-    redirect_uri = os.getenv(
+    redirect_uri = check_env_var(
         f'{SERVICE}_REDIRECT_URI',
         'http://localhost:3000'
     )

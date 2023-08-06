@@ -2,10 +2,11 @@ from urllib.parse import urlencode
 import os
 
 
-def check_env_var(env_var_name: str) -> str:
-    env_var = os.getenv(env_var_name)
+def check_env_var(env_var_name: str, default=None) -> str:
+    env_var = os.getenv(env_var_name, default)
     if not env_var:
-        raise ValueError(f'{env_var_name} is not set in the environment')
+        raise ValueError(
+            f'{env_var_name} is not properly set for the environment')
     return env_var
 
 
@@ -17,7 +18,7 @@ def generate_auth_url(
         SERVICE,
         extra_params={}
 ):
-    redirect_uri = os.getenv(
+    redirect_uri = check_env_var(
         f'{SERVICE}_REDIRECT_URI',
         'http://localhost:3000'
     )
