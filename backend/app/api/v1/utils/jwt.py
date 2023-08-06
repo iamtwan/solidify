@@ -1,11 +1,10 @@
 from jose import jwt
 from datetime import datetime, timedelta
+from .auth import check_env_var
 from typing import Optional
-import os
 
 
 ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_SECONDS = 3600
 
 
 def create_access_token(
@@ -17,8 +16,7 @@ def create_access_token(
 
     Parameters:
         subject (str): The subject of the token (typically a user identifier).
-        expires_delta (Optional[timedelta]): The lifespan of the token. If not
-        provided, the default value will be used (ACCESS_TOKEN_EXPIRE_MINUTES).
+        expires_delta (Optional[timedelta]): The lifespan of the token.
 
     Returns:
         str: The encoded JWT as a string.
@@ -26,7 +24,7 @@ def create_access_token(
     SECRET_KEY:
         You may run 'openssl rand -hex 32' for env var.
     """
-    secret_key = os.getenv('SECRET_KEY')
+    secret_key = check_env_var('SECRET_KEY')
     if not secret_key:
         raise ValueError('SECRET_KEY is not set in the environment')
     if expires_delta:
