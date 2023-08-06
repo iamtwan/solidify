@@ -5,6 +5,7 @@ import traceback
 
 
 def process_oauth_callback(
+        jw_token,
         code,
         state,
         SERVICE,
@@ -26,7 +27,6 @@ def process_oauth_callback(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='State mismatch'
             )
-        jw_token = state
         redis.delete(f'{state}_{SERVICE}_state')
 
         data = {
@@ -54,7 +54,7 @@ def process_oauth_callback(
             ex=expiry_time
         )
 
-        return {'status': f'{SERVICE} successfully connected'}
+        return {'status': f'{SERVICE} successfully connected', 'jw_token': jw_token}
 
     except requests.exceptions.RequestException as exception:
         print(traceback.format_exc())
