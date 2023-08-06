@@ -6,7 +6,7 @@ from ..services.google import GoogleService
 router = APIRouter()
 
 
-@router.post('/upload/{playlist_id}')
+@router.post('/upload/{playlist_id}', tags=['Google'])
 def upload_to_google(
     playlist_id: str,
     google_service: GoogleService = Depends(get_user_google_service)

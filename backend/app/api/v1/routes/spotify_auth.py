@@ -1,18 +1,20 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
-from ..utils.auth import generate_auth_url, process_oauth_callback, check_env_var
+from fastapi import APIRouter, Depends, Request
+from ..utils.auth import generate_auth_url, check_env_var
 from ..utils.jwt import create_access_token
+from ..services.auth import process_oauth_callback
 from ..dependencies import get_redis, get_current_user_jwt
 from datetime import timedelta
 import uuid
 
 
-SCOPE = 'playlist-read-private'
+SCOPE = 'playlist-read-private user-read-private'
 SHOW_DIALOG = 'false'
+SERVICE = 'spotify'
 
 router = APIRouter()
 
 
-@router.get('/spotify/login')
+@router.get('/spotify/login', tags=['Authorization'])
 def login(request: Request, redis=Depends(get_redis)):
     client_id = check_env_var('SPOTIFY_CLIENT_ID')
     jw_token = get_current_user_jwt(request)
@@ -28,19 +30,19 @@ def login(request: Request, redis=Depends(get_redis)):
         client_id,
         SCOPE,
         state,
+        SERVICE,
         {'show_dialog': SHOW_DIALOG}
     )
     return {'url': auth_url, 'jw_token': jw_token}
 
 
-@router.get('/spotify/callback')
+@router.get('/spotify/callback', tags=['Authorization'])
 def callback(code: str, state: str, redis=Depends(get_redis)):
-    service = 'spotify'
     token_url = 'https://accounts.spotify.com/api/token'
     return process_oauth_callback(
         code,
         state,
-        service,
+        SERVICE,
         token_url,
         check_env_var('SPOTIFY_CLIENT_ID'),
         check_env_var('SPOTIFY_CLIENT_SECRET'),
