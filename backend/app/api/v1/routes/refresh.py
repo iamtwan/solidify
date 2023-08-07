@@ -27,17 +27,17 @@ async def refresh_user_session(
             spotify_service,
             old_jwt,
             new_jwt,
-            'spotify'
+            'SPOTIFY'
         )
         store_refreshed_tokens(
             redis,
             google_service,
             old_jwt,
             new_jwt,
-            'google'
+            'GOOGLE'
         )
 
-        return {'status': 'Session refreshed', 'new jwt': new_jwt}
+        return {'status': 'Session refreshed', 'new_jwt': new_jwt}
 
     except HTTPException:
         raise

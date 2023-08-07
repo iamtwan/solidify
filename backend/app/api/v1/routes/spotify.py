@@ -55,18 +55,12 @@ class Playlist(BaseModel):
     tracks: PlaylistTracks
 
 
-class ProtectedPlaylist(BaseModel):
-    items: List[PlaylistTrack]
-    total: int
-
-
-@router.get('/private/{playlist_id}', response_model=ProtectedPlaylist, tags=['Spotify'])
+@router.get('/private/{playlist_id}', response_model=Playlist, tags=['Spotify'])
 def get_protected_playlist(
     playlist_id: str,
     spotify_service: SpotifyService = Depends(get_user_spotify_service)
 ):
     playlist = spotify_service.get_protected_playlist(playlist_id)
-    print(playlist)
     return playlist
 
 
