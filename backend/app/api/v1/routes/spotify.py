@@ -22,7 +22,7 @@ class AllPlaylistsResponse(BaseModel):
     playlists: List[PlaylistItem]
 
 
-@router.get('/all', response_model=AllPlaylistsResponse, tags=['Spotify'])
+@router.get('/playlists/all', response_model=AllPlaylistsResponse, tags=['Spotify'])
 def get_all_playlists(
     spotify_service: SpotifyService = Depends(get_user_spotify_service)
 ):
