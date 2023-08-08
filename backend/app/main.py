@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from .api.v1.routes import spotify, spotify_auth, google_auth, google, refresh
+from .api.v1.routes import spotify, spotify_auth, google_auth, google
 from contextlib import asynccontextmanager
 from .api.v1.utils.auth import check_env_var
 from dotenv import load_dotenv
@@ -45,7 +45,6 @@ app.add_middleware(
 
 app.include_router(spotify_auth.router, prefix='/v1/auth')
 app.include_router(google_auth.router, prefix='/v1/auth')
-app.include_router(refresh.router, prefix='/v1/auth')
 app.include_router(google.router, prefix='/v1/google')
 app.include_router(
     spotify.router,
