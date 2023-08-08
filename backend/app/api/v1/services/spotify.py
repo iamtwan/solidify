@@ -3,7 +3,7 @@ import base64
 import csv
 import io
 
-from typing import Optional, Any
+from typing import Optional, Any, Tuple
 from ..dependencies import get_redis
 
 
@@ -59,14 +59,16 @@ class SpotifyService:
 
         return self.token
 
-    def get_all_playlists(self) -> dict:
-        fields = 'items(id,name,public)'
-        url = f'{self.base_url}/me/playlists?fields={fields}'
+    def get_all_playlists(self, offset: int = 0, limit: int = 20) -> Tuple[dict, Optional[str]]:
+        fields = 'items(id,name,public),next'
+        url = f'{self.base_url}/me/playlists?fields={fields}&offset={offset}&limit={limit}'
 
         response = requests.get(url, headers=self.headers)
         response.raise_for_status()
 
-        return response.json()
+        response_data = response.json()
+
+        return response_data['items'], response_data['next']
 
     def playlist_to_csv(self, playlist: dict) -> str:
         output = io.StringIO()

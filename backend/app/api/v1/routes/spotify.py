@@ -5,7 +5,7 @@ from ..utils.auth import store_refreshed_tokens
 from ..services.spotify import SpotifyService
 from requests.exceptions import HTTPError
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from datetime import timedelta
 
 
@@ -19,15 +19,18 @@ class PlaylistItem(BaseModel):
 
 
 class AllPlaylistsResponse(BaseModel):
+    next: Optional[str]
     playlists: List[PlaylistItem]
 
 
 @router.get('/playlists/all', response_model=AllPlaylistsResponse, tags=['Spotify'])
 def get_all_playlists(
+    offset: int = 0,
+    limit: int = 20,
     spotify_service: SpotifyService = Depends(get_user_spotify_service)
 ):
-    all_playlists = spotify_service.get_all_playlists()
-    return AllPlaylistsResponse(playlists=all_playlists["items"])
+    all_playlists, next_link = spotify_service.get_all_playlists(offset, limit)
+    return AllPlaylistsResponse(playlists=all_playlists, next=next_link)
 
 
 class Artist(BaseModel):
