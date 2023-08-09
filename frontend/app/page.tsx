@@ -7,17 +7,23 @@ import { useRouter } from 'next/navigation';
 import Playlists from '@/components/spotify/Playlists';
 import { fetchPlaylists } from '@/services/api';
 
-export default function Home() {
+export default function Page() {
   const [inputValue, setInputValue] = useState('4pUmha8MJtm7RQBEETaSaI');
   const [csvData, setCsvData] = useState<string[][]>([]);
-  const { data, error, isLoading } = fetchPlaylists();
-
-  if (isLoading) {
-    return <div>Loading playlists</div>
-  }
+  const [mounted, setMounted] = useState(false);
 
   const router = useRouter();
 
+  const { data, error, isLoading } = fetchPlaylists(mounted);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading playlists</div>;
+  }
+  
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
@@ -82,8 +88,8 @@ export default function Home() {
           <button type='submit'>Submit</button>
         </form>
         <CSVLink data={csvData}>Download</CSVLink>
-        {error && <button onClick={spotifyLogin}>Spotify Login</button>}
-        {!error && <Playlists playlists={data.playlists}/>}
+
+        {error ? (<button onClick={spotifyLogin}>Spotify Login</button>) : (<Playlists playlists={data?.playlists} />)}
       </div>
     </main>
   )

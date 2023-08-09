@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import PlaylistInterface from './PlaylistInterface';
 
 export default function Playlist({ playlist, checked, handleCheckboxChange }: {

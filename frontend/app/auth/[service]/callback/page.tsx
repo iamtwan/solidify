@@ -24,6 +24,7 @@ export default function Page({
             const response = await fetch(url);
             const data = await response.json();
 
+            console.log('Setting token');
             localStorage.setItem(`${params.service}_token`, data.jw_token);
         } catch (error) {
             console.log(error);
@@ -31,14 +32,18 @@ export default function Page({
     }
 
     useEffect(() => {
-        if (params.service === 'google' || params.service === 'spotify') {
-            if (typeof searchParams.code === 'string' && typeof searchParams.state === 'string') {
-                fetchToken(searchParams.code, searchParams.state);
+        const handleTokenAndNavigate = async () => {
+            if (params.service === 'google' || params.service === 'spotify') {
+              if (typeof searchParams.code === 'string' && typeof searchParams.state === 'string') {
+                await fetchToken(searchParams.code, searchParams.state);
+              }
             }
-        }
-
-        router.push('/');
-    });
+            
+            router.push('/');
+          };
+      
+          handleTokenAndNavigate();
+    }, []);
 
     return <></>;
 }

@@ -1,24 +1,33 @@
-import useSWR from 'swr';
+import useSWRImmutable from 'swr/immutable';
 
-const fetcher = async (url: string, headers: HeadersInit = new Headers()) => {
+const fetcher = async (url: string, headers: Headers) => {
+    console.log(url, headers.get('Authorization'));
     const response = await fetch(url, { headers });
 
     if (!response.ok) {
-        throw new Error("Error: ", await response.json());
+        throw new Error(await response.json());
     }
 
     return await response.json();
 }
 
-export const fetchPlaylists = () => {
-    const headers: HeadersInit = new Headers();
-    headers.set('Authorization', `Bearer ${localStorage.getItem('spotify_token')}`);
-    
-    const { data, error, isLoading } = useSWR('http://127.0.0.1:8000/v1/spotify/all', url => fetcher(url, headers));
+export const fetchPlaylists = (mounted: boolean) => {
+    const headers: Headers = new Headers();
+
+    if (mounted) { 
+        console.log(localStorage);
+        headers.set('Authorization', `Bearer ${localStorage.getItem('spotify_token')}`);
+    }
+
+    console.log(mounted);
+
+    const { data, error, isLoading } = useSWRImmutable(mounted ? 'http://127.0.0.1:8000/v1/spotify/all' : null, url => fetcher(url, headers), {
+        shouldRetryOnError: false
+    });
 
     return {
         data,
         error,
-        isLoading
+        isLoading: mounted ? isLoading : true
     };
   }

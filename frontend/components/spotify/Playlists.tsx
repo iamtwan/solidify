@@ -8,6 +8,7 @@ import Papa from 'papaparse';
 export default function Playlists({ playlists }: {
   playlists: PlaylistInterface[]
 }) {
+  console.log(playlists);
   const [checkedPlaylists, setCheckedPlaylists] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
