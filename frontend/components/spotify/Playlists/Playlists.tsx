@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { fetchPlaylists, downloadPlaylist, uploadPlaylist, login } from "@/services/api";
 import styles from './playlists.module.css';
 import playlistStyles from '../Playlist/playlist.module.css';
+import ReactLoading from 'react-loading';
 
 export default function Playlists({ googleToken }: {
   googleToken: string
@@ -164,9 +165,9 @@ export default function Playlists({ googleToken }: {
         </div>
       </div>
 
-      {error ? <button className={styles['login-button']} onClick={spotifyLogin}>Spotify login</button> : isLoading ? 
-      <div className={styles['login-button']}>Loading...</div> : 
-      <div>
+      {error ? <button className={styles['login-button']} onClick={spotifyLogin}>Spotify login</button> : !data ? 
+      <div>Loading...</div> : 
+      <div className={styles['playlists-list']}>
         {data.playlists.map((playlist: PlaylistInterface) => {
           const checked = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked) || false;
           const isUploading = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading) || false;
@@ -177,10 +178,22 @@ export default function Playlists({ googleToken }: {
             isUploading={isUploading}
             handleCheckboxChange={handleCheckboxChange}
           /> 
-      })}
+        })}
 
-      <button disabled={pageIndex <= 0} onClick={() => setPageIndex(pageIndex - 1)}>Prev</button>
-      <button disabled={!data.next} onClick={() => setPageIndex(pageIndex + 1)}>Next</button>
+        <div className={styles['pagination-container']}>
+          <button 
+            disabled={pageIndex <= 0} 
+            onClick={() => setPageIndex(pageIndex - 1)}
+            className={styles['pagination-button']}>
+              Prev
+          </button>
+          <button 
+            disabled={!data.next || isLoading} 
+            onClick={() => setPageIndex(pageIndex + 1)}
+            className={styles['pagination-button']}>
+              {isLoading ? <ReactLoading type='spin' color='grey' width={10} height={13}/> : 'Next'}
+          </button>
+        </div>
       </div>
       }
     </div>

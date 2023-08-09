@@ -19,7 +19,7 @@ export const fetchPlaylists = (mounted: boolean, pageIndex: number) => {
     const accessToken = (mounted && localStorage.getItem('spotify_token')) || '';
 
     const { data, error, isLoading } = useSWR(mounted ? `http://127.0.0.1:8000/v1/spotify/playlists/all?offset=${pageIndex}` : null, 
-    url => fetcher(url, { arg: accessToken} ));
+    url => fetcher(url, { arg: accessToken} ), { keepPreviousData: true });
 
     return {
         data,
