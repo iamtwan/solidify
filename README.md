@@ -17,7 +17,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 To set up the environment, you will need [Docker](https://www.docker.com/), which encapsulates all the required packages and libraries. Additionally, developer credentials for Spotify (mandatory) and Google (optional) are essential. These credentials are utilized as environment variables on the server-side, playing a crucial role in the app's core functionalities. Without them the app will not function properly.
 
-Please refer to the [backend README](https://github.com/iamtwan/solidify/tree/main/backend#readme) for detailed instructions on configuring the `.env` file and integrating these credentials into the application.
+Please refer to the back-end [README](https://github.com/iamtwan/solidify/tree/main/backend#readme) for detailed instructions on configuring the `.env` file and integrating these credentials into the application.
 
 ### Installation
 
