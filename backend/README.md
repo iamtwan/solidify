@@ -6,7 +6,7 @@ Solidify Backend is the server-side component of the Solidify Spotify playlist e
 
 - **API Endpoints**: Expose endpoints to fetch public and private Spotify playlists.
 - **Spotify Integration**: OAuth2 authentication for protected Spotify playlist retrieval.
-- **Google Drive Integration**: Optional OAuth2 authentication to allow users to upload playlists directly to Google Drive.
+- **Google Drive Integration**: Optional OAuth2 authentication to allow users to upload pre-processed playlists .csv files to Google Drive.
 - **Redis Cache**: Efficient handling of dependency requests using Redis for caching.
 - **Environment Configuration**: Easy setup with environment variables.
 
