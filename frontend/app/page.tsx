@@ -3,22 +3,40 @@
 import styles from './page.module.css'
 import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { CSVLink } from 'react-csv';
-import { useRouter } from 'next/navigation';
 import Playlists from '@/components/spotify/Playlists';
-import { fetchPlaylists } from '@/services/api';
+import { fetchPlaylists, mutatePlaylists } from '@/services/api';
 
 export default function Page() {
   const [inputValue, setInputValue] = useState('4pUmha8MJtm7RQBEETaSaI');
   const [csvData, setCsvData] = useState<string[][]>([]);
   const [mounted, setMounted] = useState(false);
 
-  const router = useRouter();
+  const [prevSpotifyKey, setPrevSpotifyKey] = useState('');
+  const [prevGoogleKey, setPrevGoogleKey] = useState('');
 
   const { data, error, isLoading } = fetchPlaylists(mounted);
+  const { trigger } = mutatePlaylists();
+
+  const handleStorageChange = () => {
+    const currSpotifyKey = localStorage.getItem('spotify_token') || '';
+    const currGoogleKey = localStorage.getItem('google_token') || '';
+
+    if (currSpotifyKey !== prevSpotifyKey) {
+      trigger(currSpotifyKey);
+    }
+
+    if (currGoogleKey !== prevGoogleKey) {
+
+    }
+  }
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    setPrevSpotifyKey(localStorage.getItem('spotify_token') || '');
+    setPrevGoogleKey(localStorage.getItem('google_token') || '');
+
+    window.addEventListener('storage', handleStorageChange);
+  }, [])
 
   if (isLoading) {
     return <div>Loading playlists</div>;
@@ -70,7 +88,9 @@ export default function Page() {
     try {
       const response = await fetch(url);
       const data = await response.json();
-      router.push(data.url);
+
+      const windowFeatures ='toolbar=no, menubar=no, width=600, height=700, top=100, left=100';
+      window.open(data.url, '_blank', windowFeatures);
     } catch (error) {
       console.log(error);
     }
@@ -88,7 +108,6 @@ export default function Page() {
           <button type='submit'>Submit</button>
         </form>
         <CSVLink data={csvData}>Download</CSVLink>
-
         {error ? (<button onClick={spotifyLogin}>Spotify Login</button>) : (<Playlists playlists={data?.playlists} />)}
       </div>
     </main>

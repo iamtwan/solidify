@@ -10,8 +10,6 @@ export default function Page({
     params: { service: string },
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
-    const router = useRouter();
-
     const fetchToken = async (code: string, state: string) => {
         try {
             const urlParams = new URLSearchParams();
@@ -24,7 +22,6 @@ export default function Page({
             const response = await fetch(url);
             const data = await response.json();
 
-            console.log('Setting token');
             localStorage.setItem(`${params.service}_token`, data.jw_token);
         } catch (error) {
             console.log(error);
@@ -39,7 +36,7 @@ export default function Page({
               }
             }
             
-            router.push('/');
+            window.close();
           };
       
           handleTokenAndNavigate();

@@ -1,7 +1,10 @@
 import useSWRImmutable from 'swr/immutable';
+import useSWRMutation from 'swr/mutation';
 
-const fetcher = async (url: string, headers: Headers) => {
-    console.log(url, headers.get('Authorization'));
+const fetcher = async (url: string, { arg } : { arg: string }) => {
+    const headers: Headers = new Headers();
+    headers.set('Authorization', `Bearer ${arg}`);
+
     const response = await fetch(url, { headers });
 
     if (!response.ok) {
@@ -12,22 +15,24 @@ const fetcher = async (url: string, headers: Headers) => {
 }
 
 export const fetchPlaylists = (mounted: boolean) => {
-    const headers: Headers = new Headers();
+    const accessToken = localStorage.getItem('spotify_token') || '';
 
-    if (mounted) { 
-        console.log(localStorage);
-        headers.set('Authorization', `Bearer ${localStorage.getItem('spotify_token')}`);
-    }
-
-    console.log(mounted);
-
-    const { data, error, isLoading } = useSWRImmutable(mounted ? 'http://127.0.0.1:8000/v1/spotify/all' : null, url => fetcher(url, headers), {
-        shouldRetryOnError: false
-    });
+    const { data, error, isLoading } = useSWRImmutable(mounted ? 'http://127.0.0.1:8000/v1/spotify/all' : null, 
+    url => fetcher(url, { arg: accessToken} ));
 
     return {
         data,
         error,
-        isLoading: mounted ? isLoading : true
+        isLoading: mounted ? isLoading : true,
     };
-  }
+}
+
+export const mutatePlaylists = () => {
+    const { trigger, isMutating } = useSWRMutation('http://127.0.0.1:8000/v1/spotify/all', fetcher);
+
+    return { 
+        trigger,
+        isMutating
+    }
+}
+

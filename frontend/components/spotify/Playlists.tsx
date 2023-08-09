@@ -3,13 +3,15 @@
 import Playlist from "./Playlist";
 import PlaylistInterface from "./PlaylistInterface";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Papa from 'papaparse';
 
 export default function Playlists({ playlists }: {
   playlists: PlaylistInterface[]
 }) {
-  console.log(playlists);
   const [checkedPlaylists, setCheckedPlaylists] = useState<{ [key: string]: boolean }>({});
+
+  const router = useRouter();
 
   useEffect(() => {
     let tempPlaylists: { [key: string]: boolean } = {};
@@ -85,38 +87,57 @@ const downloadSelected = async () => {
   }
 }
 
-const uploadSelected = async () => {
+const upload = async () => {
   for (const [id, checked] of Object.entries(checkedPlaylists)) {
     if (!checked) continue;
 
     await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`); // used to cache playlist in redis
 
-    try {
-      const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('google_token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload playlist with id: ' + id);
+    const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('google_token')}`
       }
+    });
 
-      console.log('uploaded playlist with id: ', id);
+    if (!response.ok) {
+      throw new Error('Failed to upload playlist with id: ' + id);
+    }
+
+    console.log('uploaded playlist with id: ' + id);
+  }
+}
+
+const uploadSelected = async () => {
+  try {
+    await upload();
+  } catch (error) {
+    const refreshed = await refreshGoogleToken();
+
+    if (!refreshed) {
+      await login('http://127.0.0.1:8000/v1/auth/google/login');
+    }
+
+    try {
+      await upload();
     } catch (error) {
-      console.log(error);
-      // refreshGoogleToken();
+      console.error('Failed to upload after token refresh and login: ', error);
     }
   }
 }
 
 const refreshGoogleToken = async () => {
+  const googleToken = localStorage.getItem('google_token');
+
+  if (!googleToken) {
+    return false;
+  }
+
   try {
     const response = await fetch('http://127.0.0.1:8000/v1/google/refresh', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('google_token')}`
+        'Authorization': `Bearer ${googleToken}`
       }
     });
   
@@ -126,9 +147,18 @@ const refreshGoogleToken = async () => {
   
     const data = await response.json();
     localStorage.setItem('google_token', data['new jwt']);
-    console.log(data);
+    return true;
   } catch (error) {
-    // login google
+    return false;
+  }
+}
+
+const login = async (url: string) => {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    router.push(data.url);
+  } catch (error) {
     console.log(error);
   }
 }
