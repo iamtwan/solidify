@@ -4,7 +4,7 @@ import styles from './page.module.css'
 import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { CSVLink } from 'react-csv';
 import Playlists from '@/components/spotify/Playlists';
-import { fetchPlaylists, mutatePlaylists } from '@/services/api';
+import { fetchPlaylists, mutatePlaylists, login } from '@/services/api';
 
 export default function Page() {
   const [inputValue, setInputValue] = useState('4pUmha8MJtm7RQBEETaSaI');
@@ -22,11 +22,12 @@ export default function Page() {
     const currGoogleKey = localStorage.getItem('google_token') || '';
 
     if (currSpotifyKey !== prevSpotifyKey) {
+      setPrevSpotifyKey(currSpotifyKey);
       trigger(currSpotifyKey);
     }
 
     if (currGoogleKey !== prevGoogleKey) {
-
+      setPrevGoogleKey(currGoogleKey);
     }
   }
 
@@ -84,21 +85,7 @@ export default function Page() {
     }
   };
 
-  const login = async (url: string) => {
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-
-      const windowFeatures ='toolbar=no, menubar=no, width=600, height=700, top=100, left=100';
-      window.open(data.url, '_blank', windowFeatures);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   const spotifyLogin = () => login('http://127.0.0.1:8000/v1/auth/spotify/login');
-
-  const googleLogin = () => login('http://127.0.0.1:8000/v1/auth/google/login');
 
   return (
     <main className={styles.main}>
@@ -108,7 +95,7 @@ export default function Page() {
           <button type='submit'>Submit</button>
         </form>
         <CSVLink data={csvData}>Download</CSVLink>
-        {error ? (<button onClick={spotifyLogin}>Spotify Login</button>) : (<Playlists playlists={data?.playlists} />)}
+        {error ? (<button onClick={spotifyLogin}>Spotify Login</button>) : (<Playlists playlists={data?.playlists} googleToken={prevGoogleKey}/>)}
       </div>
     </main>
   )
