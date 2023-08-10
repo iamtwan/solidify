@@ -5,6 +5,7 @@ import io
 
 from typing import Optional, Any, Tuple
 from ..dependencies import get_redis
+from ..utils.auth import set_redis
 
 
 class SpotifyService:
@@ -72,20 +73,20 @@ class SpotifyService:
 
     def playlist_to_csv(self, playlist: dict) -> str:
         output = io.StringIO()
-        fieldnames = ["track_name", "artist_name", "album_name"]
+        fieldnames = ['track_name', 'artist_name', 'album_name']
         writer = csv.DictWriter(output, fieldnames=fieldnames)
 
-        writer.writerow({"track_name": "Total Tracks",
-                        "artist_name": playlist['tracks']['total'], "album_name": ""})
-        writer.writerow({"track_name": "Playlist Name",
-                        "artist_name": playlist['name'], "album_name": ""})
+        writer.writerow({'track_name': 'Total Tracks',
+                        'artist_name': playlist['tracks']['total'], 'album_name': ''})
+        writer.writerow({'track_name': 'Playlist Name',
+                        'artist_name': playlist['name'], 'album_name': ''})
         writer.writeheader()
         for item in playlist['tracks']['items']:
             track = item['track']
             writer.writerow({
-                "track_name": track['name'],
-                "artist_name": ', '.join(artist['name'] for artist in track['artists']),
-                "album_name": track['album']['name'],
+                'track_name': track['name'],
+                'artist_name': ', '.join(artist['name'] for artist in track['artists']),
+                'album_name': track['album']['name'],
             })
 
         return output.getvalue()
@@ -93,7 +94,7 @@ class SpotifyService:
     def cache_playlist(self, playlist_id: str, playlist: dict) -> None:
         csv_string = self.playlist_to_csv(playlist)
         redis = get_redis()
-        redis.set(f'{playlist_id}_csv', csv_string, ex=3600)
+        set_redis(redis, f'{playlist_id}_csv', csv_string, 3600)
 
     def get_protected_playlist(self, playlist_id: str) -> Any:
         fields = 'name,tracks.total,tracks.items(track(name,artists(name),album(name)))'

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from ..dependencies import get_user_google_service, get_redis, user_google_refresh, get_current_user_jwt
 from ..utils.jwt import create_access_token
-from ..utils.auth import store_refreshed_tokens
+from ..utils.auth import store_refreshed_tokens, get_redis_value
 from ..services.google import GoogleService
 from datetime import timedelta
 
@@ -15,7 +15,7 @@ def upload_to_google(
     google_service: GoogleService = Depends(get_user_google_service)
 ):
     redis = get_redis()
-    csv_content_raw = redis.get(f'{playlist_id}_csv')
+    csv_content_raw = get_redis_value(redis, f'{playlist_id}_csv')
     if csv_content_raw is None:
         raise HTTPException(
             status_code=404,
@@ -63,7 +63,7 @@ async def refresh_google_session(
 
     if google_status is None:
         raise HTTPException(
-            status_code=400, detail="Failed to refresh Google session")
+            status_code=400, detail='Failed to refresh Google session')
 
     return {
         'google_status': google_status,
