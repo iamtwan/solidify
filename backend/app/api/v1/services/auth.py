@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status
-from ..utils.auth import check_env_var, get_redis_value, delete_redis, set_redis
+from ..utils.auth import check_env_var
+from ..services.redis import RedisHandler
 import requests
 import traceback
 
@@ -19,7 +20,10 @@ def process_oauth_callback(
         'http://localhost:3000'
     )
     try:
-        valid = get_redis_value(redis, f'{state}_{SERVICE}_state')
+        redis_handler = RedisHandler()
+
+        valid = redis_handler.get_redis_value(
+            redis, f'{state}_{SERVICE}_state')
         if valid:
             valid = valid.decode('utf-8')
         if not valid or valid != 'valid':
@@ -27,7 +31,7 @@ def process_oauth_callback(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='State mismatch'
             )
-        delete_redis(redis, f'{state}_{SERVICE}_state')
+        redis_handler.delete_redis(redis, f'{state}_{SERVICE}_state')
 
         data = {
             'client_id': client_id,
@@ -43,13 +47,13 @@ def process_oauth_callback(
 
         expiry_time = tokens['expires_in']
 
-        set_redis(
+        redis_handler.set_redis(
             redis,
             f'{jw_token}_{SERVICE}_access_token',
             tokens['access_token'],
             expiry_time
         )
-        set_redis(
+        redis_handler.set_redis(
             redis,
             f'{jw_token}_{SERVICE}_refresh_token',
             tokens['refresh_token'],

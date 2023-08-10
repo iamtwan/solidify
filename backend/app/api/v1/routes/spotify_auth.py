@@ -3,7 +3,7 @@ from ..utils.auth import generate_auth_url, check_env_var
 from ..utils.jwt import create_access_token
 from ..services.auth import process_oauth_callback
 from ..dependencies import get_redis
-from ..utils.auth import set_redis
+from ..services.redis import RedisHandler
 from datetime import timedelta
 import uuid
 
@@ -20,7 +20,8 @@ def login(redis=Depends(get_redis)):
     client_id = check_env_var('SPOTIFY_CLIENT_ID')
     state = str(uuid.uuid4())
 
-    set_redis(redis, f'{state}_{SERVICE}_state', 'valid', 600)
+    redis_handler = RedisHandler()
+    redis_handler.set_redis(redis, f'{state}_{SERVICE}_state', 'valid', 600)
 
     auth_url = generate_auth_url(
         'https://accounts.spotify.com/authorize',

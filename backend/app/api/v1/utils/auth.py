@@ -1,5 +1,4 @@
-from fastapi import HTTPException
-from redis.exceptions import ConnectionError, ResponseError
+from ..services.redis import RedisHandler
 from urllib.parse import urlencode
 import os
 
@@ -42,8 +41,9 @@ def store_refreshed_tokens(
     old_jwt: str,
     new_jwt: str,
     service_name: str
-) -> None:
-    refresh_token = get_redis_value(
+) -> str:
+    redis_handler = RedisHandler()
+    refresh_token = redis_handler.get_redis_value(
         redis,
         f'{old_jwt}_{service_name}_refresh_token'
     )
@@ -51,58 +51,25 @@ def store_refreshed_tokens(
         refresh_token = refresh_token.decode('utf-8')
         new_access_token = service.refresh_access_token()
         if new_access_token is not None:
-            set_redis(
+            redis_handler.set_redis(
                 redis,
                 f'{new_jwt}_{service_name}_access_token',
                 new_access_token,
                 3600
             )
-            delete_redis(
+            redis_handler.delete_redis(
                 redis,
                 f'{old_jwt}_{service_name}_access_token'
             )
-            set_redis(
+            redis_handler.set_redis(
                 redis,
-                f'{new_jwt}_{service_name}_access_token',
+                f'{new_jwt}_{service_name}_refresh_token',
                 refresh_token,
                 3600
             )
-            delete_redis(
+            redis_handler.delete_redis(
                 redis,
                 f'{old_jwt}_{service_name}_refresh_token'
             )
             return f'{service_name} session refreshed'
         return f'{service_name} session failed to refresh'
-
-
-def handle_redis_exceptions(func):
-    def wrap(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-
-        except ConnectionError:
-            raise HTTPException(
-                status_code=503,
-                detail='Service Unavailable: Unable to connect to Redis.'
-            )
-        except ResponseError:
-            raise HTTPException(
-                status_code=503,
-                detail='Internal Server Error: Unexpected response from Redis.'
-            )
-    return wrap
-
-
-@handle_redis_exceptions
-def set_redis(redis, key: str, value: str, expiry_time: int):
-    redis.set(key, value, ex=expiry_time)
-
-
-@handle_redis_exceptions
-def get_redis_value(redis, key: str):
-    return redis.get(key)
-
-
-@handle_redis_exceptions
-def delete_redis(redis, key: str):
-    redis.delete(key)

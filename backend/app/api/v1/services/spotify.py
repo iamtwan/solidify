@@ -5,7 +5,7 @@ import io
 
 from typing import Optional, Any, Tuple
 from ..dependencies import get_redis
-from ..utils.auth import set_redis
+from ..services.redis import RedisHandler
 
 
 class SpotifyService:
@@ -94,7 +94,8 @@ class SpotifyService:
     def cache_playlist(self, playlist_id: str, playlist: dict) -> None:
         csv_string = self.playlist_to_csv(playlist)
         redis = get_redis()
-        set_redis(redis, f'{playlist_id}_csv', csv_string, 3600)
+        redis_handler = RedisHandler()
+        redis_handler.set_redis(redis, f'{playlist_id}_csv', csv_string, 3600)
 
     def get_protected_playlist(self, playlist_id: str) -> Any:
         fields = 'name,tracks.total,tracks.items(track(name,artists(name),album(name)))'
