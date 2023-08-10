@@ -1,10 +1,11 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from .api.v1.routes import spotify, spotify_auth, google_auth, google
 from contextlib import asynccontextmanager
 from .api.v1.utils.auth import check_env_var
 from dotenv import load_dotenv
-from .api.v1.dependencies import get_spotify_service
+from .api.v1.dependencies import get_spotify_service, get_redis
+from redis.exceptions import ConnectionError
 
 
 load_dotenv()
@@ -22,8 +23,16 @@ async def lifespan(app: FastAPI):
         'GOOGLE_REDIRECT_URI',
         'REDIS_HOST'
     ]
+
     for var in required_env_vars:
         check_env_var(var)
+
+    redis = get_redis()
+    try:
+        if redis.ping():
+            print('Redis successfully connected')
+    except ConnectionError:
+        raise HTTPException(status_code=500, detail='Redis not connected')
     yield
 
 app = FastAPI(lifespan=lifespan)
