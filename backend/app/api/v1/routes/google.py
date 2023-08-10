@@ -5,19 +5,22 @@ from ..utils.auth import store_refreshed_tokens
 from ..services.redis import RedisHandler
 from ..services.google import GoogleService
 from datetime import timedelta
+from ..models.auth import RefreshTokens
+from ..models.google import UploadPlaylist
 
 
 router = APIRouter()
 
 
-@router.post('/upload/{playlist_id}', tags=['Google'])
+@router.post('/upload/{playlist_id}', response_model=UploadPlaylist, tags=['Google'])
 def upload_to_google(
     playlist_id: str,
     google_service: GoogleService = Depends(get_user_google_service)
 ):
     redis = get_redis()
     redis_handler = RedisHandler()
-    csv_content_raw = redis_handler.get_redis_value(redis, f'{playlist_id}_csv')
+    csv_content_raw = redis_handler.get_redis_value(
+        redis, f'{playlist_id}_csv')
     if csv_content_raw is None:
         raise HTTPException(
             status_code=404,
@@ -38,7 +41,7 @@ def upload_to_google(
         )
 
 
-@router.post('/refresh', tags=['Google'])
+@router.post('/refresh', response_model=RefreshTokens, tags=['Google'])
 async def refresh_google_session(
     redis=Depends(get_redis),
     old_jwt=Depends(get_current_user_jwt),

@@ -4,6 +4,7 @@ from ..utils.jwt import create_access_token
 from ..services.auth import process_oauth_callback
 from ..dependencies import get_redis
 from ..services.redis import RedisHandler
+from ..models.auth import LoginResponse, CallbackResponse
 from datetime import timedelta
 import uuid
 
@@ -15,7 +16,7 @@ SERVICE = 'SPOTIFY'
 router = APIRouter()
 
 
-@router.get('/spotify/login', tags=['Authorization'])
+@router.get('/spotify/login', response_model=LoginResponse, tags=['Authorization'])
 def login(redis=Depends(get_redis)):
     client_id = check_env_var('SPOTIFY_CLIENT_ID')
     state = str(uuid.uuid4())
@@ -34,7 +35,7 @@ def login(redis=Depends(get_redis)):
     return {'url': auth_url}
 
 
-@router.get('/spotify/callback', tags=['Authorization'])
+@router.get('/spotify/callback', response_model=CallbackResponse, tags=['Authorization'])
 def callback(code: str, state: str, redis=Depends(get_redis)):
     token_url = 'https://accounts.spotify.com/api/token'
     jw_token = create_access_token(
