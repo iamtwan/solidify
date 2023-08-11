@@ -3,17 +3,14 @@
 import styles from './page.module.css'
 import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import Playlists from '@/components/spotify/Playlists';
-import { fetchPlaylists, mutatePlaylists, downloadPlaylist, login } from '@/services/api';
+import { mutatePlaylists, downloadPlaylist, login } from '@/services/api';
 
 export default function Page() {
   const [inputValue, setInputValue] = useState('4pUmha8MJtm7RQBEETaSaI');
-  const [csvData, setCsvData] = useState<string[][]>([]);
-  const [mounted, setMounted] = useState(false);
 
   const [prevSpotifyKey, setPrevSpotifyKey] = useState('');
   const [prevGoogleKey, setPrevGoogleKey] = useState('');
 
-  const { data, error, isLoading } = fetchPlaylists(mounted);
   const { trigger } = mutatePlaylists();
 
   const handleStorageChange = () => {
@@ -31,17 +28,12 @@ export default function Page() {
   }
 
   useEffect(() => {
-    setMounted(true);
     setPrevSpotifyKey(localStorage.getItem('spotify_token') || '');
     setPrevGoogleKey(localStorage.getItem('google_token') || '');
 
     window.addEventListener('storage', handleStorageChange);
   }, [])
 
-  if (isLoading) {
-    return <div>Loading playlists</div>;
-  }
-  
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
@@ -62,8 +54,6 @@ export default function Page() {
     }
   };
 
-  const spotifyLogin = () => login('http://127.0.0.1:8000/v1/auth/spotify/login');
-
   return (
     <main className={styles.main}>
       <div>
@@ -72,11 +62,7 @@ export default function Page() {
           <input className={styles['input-field']} type='text' value={inputValue} onChange={handleInputChange} />
           <button type='submit' className={styles['download-button']}>Download</button>
         </form>
-        <h1>Sign in to Spotify to view playlists</h1>
-        {error ? 
-        <button className={styles['login-button']} onClick={spotifyLogin}>Spotify Login</button> 
-        : 
-        <Playlists playlists={data?.playlists} googleToken={prevGoogleKey}/>}
+        <Playlists googleToken={prevGoogleKey}/>
       </div>
     </main>
   )

@@ -3,10 +3,9 @@
 import Playlist from "./Playlist";
 import PlaylistInterface from "./PlaylistInterface";
 import { useState, useEffect } from "react";
-import { downloadPlaylist, login } from "@/services/api";
+import { fetchPlaylists, downloadPlaylist, login } from "@/services/api";
 
-export default function Playlists({ playlists, googleToken }: {
-  playlists: PlaylistInterface[],
+export default function Playlists({ googleToken }: {
   googleToken: string
 }) {
   interface PlaylistInfo {
@@ -16,17 +15,22 @@ export default function Playlists({ playlists, googleToken }: {
 
   const [checkedPlaylists, setCheckedPlaylists] = useState<{ [key: string]: PlaylistInfo }>({});
   const [playlistsToUpload, setPlaylistsToUpload] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  const { data, error, isLoading } = fetchPlaylists(mounted);
 
   useEffect(() => {
-    let tempPlaylists: { [key: string ]: PlaylistInfo } = {};
+    if (data) {
+      let tempPlaylists: { [key: string ]: PlaylistInfo } = {};
 
-    for(let playlist of playlists) {
-      let tempPlaylist: PlaylistInfo = { checked: false, isUploading: false };
-      tempPlaylists[playlist.id] = tempPlaylist;
-    }
+      for(let playlist of data.playlists) {
+        let tempPlaylist: PlaylistInfo = { checked: false, isUploading: false };
+        tempPlaylists[playlist.id] = tempPlaylist;
+      }
 
-    setCheckedPlaylists(tempPlaylists);
-  }, [playlists]);
+      setCheckedPlaylists(tempPlaylists);
+  }
+  }, [data]);
 
   useEffect(() => {    
     const uploadPlaylists = async () => {
@@ -46,6 +50,10 @@ export default function Playlists({ playlists, googleToken }: {
 
     uploadPlaylists();
   }, [googleToken]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, [])
 
   const handleCheckboxChange = (playlist: PlaylistInterface) => {
     setCheckedPlaylists(prevCheckedPlaylists => ({
@@ -156,6 +164,8 @@ export default function Playlists({ playlists, googleToken }: {
 //   }
 // }
 
+  const spotifyLogin = () => login('http://127.0.0.1:8000/v1/auth/spotify/login');
+
   return <div>
     <div>
       <label>
@@ -165,8 +175,8 @@ export default function Playlists({ playlists, googleToken }: {
       <button onClick={downloadSelected}>Download selected</button>
       <button onClick={uploadSelected}>Uploaded selected</button>
     </div>
-
-    {playlists.map(playlist => {
+    
+    {error ? <button onClick={spotifyLogin}>Spotify login</button> : isLoading ? <div>Loading...</div> : data.playlists.map((playlist: PlaylistInterface) => {
       const checked = checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked;
       const isUploading = checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading;
 
