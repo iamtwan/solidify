@@ -2,6 +2,7 @@
 
 import styles from './page.module.css';
 import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
+import HowItWorks from '@/components/howitworks/HowItWorks';
 import Playlists from '@/components/spotify/Playlists/Playlists';
 import { mutatePlaylists, downloadPlaylist, login } from '@/services/api';
 
@@ -56,6 +57,7 @@ export default function Page() {
 
   return (
     <main className={styles.main}>
+      <HowItWorks />
       <div className={styles['playlist-download']}>
         <h2>Download Spotify Playlist as CSV</h2>
         <form className={styles['playlist-form']} name='playlistForm' onSubmit={handleSubmit}>
