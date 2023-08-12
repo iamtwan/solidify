@@ -1,3 +1,10 @@
+.playlist-download {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .playlist-form {
   display: flex;
   flex-direction: column;

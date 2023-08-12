@@ -56,15 +56,15 @@ export default function Page() {
 
   return (
     <main className={styles.main}>
-      <div>
-        <h2>Enter a link to a Spotify playlist</h2>
+      <div className={styles['playlist-download']}>
+        <h2>Download Spotify Playlist as CSV</h2>
         <form className={styles['playlist-form']} name='playlistForm' onSubmit={handleSubmit}>
-          <input className={styles['input-field']} type='text' value={inputValue} onChange={handleInputChange} />
+          <input className={styles['input-field']} type='text' value={inputValue} onChange={handleInputChange} placeholder='Enter Spotify Playlist Link'/>
           <button type='submit' className={styles['download-button']}>Download</button>
         </form>
-        
-        <Playlists googleToken={prevGoogleKey}/>
       </div>
+
+        <Playlists googleToken={prevGoogleKey}/>
     </main>
   )
 }
