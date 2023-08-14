@@ -53,6 +53,7 @@ def process_oauth_callback(
             tokens['access_token'],
             expiry_time
         )
+
         redis_handler.set_redis(
             redis,
             f'{jw_token}_{SERVICE}_refresh_token',
@@ -60,7 +61,7 @@ def process_oauth_callback(
             expiry_time
         )
 
-        return {'status': f'{SERVICE} successfully connected', 'jw_token': jw_token}
+        return {'status': f'{SERVICE} successfully connected', 'jwt': jw_token}
 
     except requests.exceptions.RequestException as exception:
         print(traceback.format_exc())

@@ -1,4 +1,4 @@
-import useSWRImmutable from 'swr/immutable';
+import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import Papa from 'papaparse';
 
@@ -15,10 +15,10 @@ const fetcher = async (url: string, { arg } : { arg: string }) => {
     return await response.json();
 }
 
-export const fetchPlaylists = (mounted: boolean) => {
+export const fetchPlaylists = (mounted: boolean, pageIndex: number) => {
     const accessToken = (mounted && localStorage.getItem('spotify_token')) || '';
 
-    const { data, error, isLoading } = useSWRImmutable(mounted ? 'http://127.0.0.1:8000/v1/spotify/all' : null, 
+    const { data, error, isLoading } = useSWR(mounted ? `http://127.0.0.1:8000/v1/spotify/playlists/all?offset=${pageIndex}` : null, 
     url => fetcher(url, { arg: accessToken} ));
 
     return {
@@ -29,7 +29,7 @@ export const fetchPlaylists = (mounted: boolean) => {
 }
 
 export const mutatePlaylists = () => {
-    const { trigger, isMutating } = useSWRMutation('http://127.0.0.1:8000/v1/spotify/all', fetcher);
+    const { trigger, isMutating } = useSWRMutation('http://127.0.0.1:8000/v1/spotify/playlists/all', fetcher);
 
     return { 
         trigger,

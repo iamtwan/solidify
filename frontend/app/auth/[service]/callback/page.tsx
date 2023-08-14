@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function Page({
     params,
@@ -22,7 +21,7 @@ export default function Page({
             const response = await fetch(url);
             const data = await response.json();
 
-            localStorage.setItem(`${params.service}_token`, data.jw_token);
+            localStorage.setItem(`${params.service}_token`, data.jwt);
         } catch (error) {
             console.log(error);
         }

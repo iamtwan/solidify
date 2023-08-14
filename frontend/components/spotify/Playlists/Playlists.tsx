@@ -18,8 +18,9 @@ export default function Playlists({ googleToken }: {
   const [checkedPlaylists, setCheckedPlaylists] = useState<{ [key: string]: PlaylistInfo }>({});
   const [playlistsToUpload, setPlaylistsToUpload] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [pageIndex, setPageIndex] = useState(0);
 
-  const { data, error, isLoading } = fetchPlaylists(mounted);
+  const { data, error, isLoading } = fetchPlaylists(mounted, pageIndex);
 
   useEffect(() => {
     if (data) {
@@ -162,20 +163,26 @@ export default function Playlists({ googleToken }: {
           <span onClick={uploadSelected} className={styles.upload}>upload</span>
         </div>
       </div>
-      
+
       {error ? <button className={styles['login-button']} onClick={spotifyLogin}>Spotify login</button> : isLoading ? 
       <div className={styles['login-button']}>Loading...</div> : 
-      data.playlists.map((playlist: PlaylistInterface) => {
-        const checked = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked) || false;
-        const isUploading = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading) || false;
+      <div>
+        {data.playlists.map((playlist: PlaylistInterface) => {
+          const checked = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked) || false;
+          const isUploading = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading) || false;
 
-        return <Playlist key={playlist.id} 
-          playlist={playlist} 
-          checked={checked}
-          isUploading={isUploading}
-          handleCheckboxChange={handleCheckboxChange}
-        /> 
-    })}
+          return <Playlist key={playlist.id} 
+            playlist={playlist} 
+            checked={checked}
+            isUploading={isUploading}
+            handleCheckboxChange={handleCheckboxChange}
+          /> 
+      })}
+
+      <button disabled={pageIndex <= 0} onClick={() => setPageIndex(pageIndex - 1)}>Prev</button>
+      <button disabled={!data.next} onClick={() => setPageIndex(pageIndex + 1)}>Next</button>
+      </div>
+      }
     </div>
   </div>
 }
