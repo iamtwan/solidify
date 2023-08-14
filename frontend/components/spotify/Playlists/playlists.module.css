@@ -76,7 +76,8 @@
 .playlists-inner-container {
   display: flex;
   flex-direction: column;
-  width: 500px;
+  max-width: 500px;
+  width: 100%;
 }
 
 .playlists-options {
@@ -96,4 +97,8 @@
   cursor: pointer;
   align-self: center;
   margin-top: 5px;
+}
+
+@media screen and (max-width: 550px) {
+  
 }

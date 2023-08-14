@@ -60,7 +60,7 @@ export default function Page() {
     <main className={styles.main}>
       <HowItWorks />
       <div className={styles['playlist-download']}>
-        <h2>Download Spotify Playlist as CSV</h2>
+        <h2 className={styles['download-title']}>Download Spotify Playlist as CSV</h2>
         <form className={styles['playlist-form']} name='playlistForm' onSubmit={handleSubmit}>
           <input className={styles['input-field']} type='text' value={inputValue} onChange={handleInputChange} placeholder='Enter Spotify Playlist Link'/>
           <button type='submit' className={styles['download-button']}>Download</button>
