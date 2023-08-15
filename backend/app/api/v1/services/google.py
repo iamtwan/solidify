@@ -44,7 +44,7 @@ class GoogleService:
 
         return self.token
 
-    def upload_file(self, playlist_id, csv_string) -> Any:
+    def upload_file(self, playlist_id: str, csv_string: str) -> Any:
         url = f'{self.base_url}/files?uploadType=multipart'
         boundary = 'foo_bar_baz'
         body = (

@@ -1,30 +1,29 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from ..utils.auth import generate_auth_url, check_env_var
 from ..utils.jwt import create_access_token
 from ..services.auth import process_oauth_callback
-from ..dependencies import get_redis, get_current_user_jwt
+from ..dependencies import get_redis
+from ..services.redis import RedisHandler
+from ..models.auth import LoginResponse, CallbackResponse
 from datetime import timedelta
 import uuid
 
 
 SCOPE = 'playlist-read-private user-read-private'
 SHOW_DIALOG = 'false'
-SERVICE = 'spotify'
+SERVICE = 'SPOTIFY'
 
 router = APIRouter()
 
 
-@router.get('/spotify/login', tags=['Authorization'])
-def login(request: Request, redis=Depends(get_redis)):
+@router.get('/spotify/login', response_model=LoginResponse, tags=['Authorization'])
+def login(redis=Depends(get_redis)):
     client_id = check_env_var('SPOTIFY_CLIENT_ID')
-    jw_token = get_current_user_jwt(request)
-    if not jw_token:
-        jw_token = create_access_token(
-            subject=str(uuid.uuid4()),
-            expires_delta=timedelta(hours=1)
-        )
-    state = jw_token
-    redis.set(f'{state}_spotify_state', 'valid', ex=600)
+    state = str(uuid.uuid4())
+
+    redis_handler = RedisHandler()
+    redis_handler.set_redis(redis, f'{state}_{SERVICE}_state', 'valid', 600)
+
     auth_url = generate_auth_url(
         'https://accounts.spotify.com/authorize',
         client_id,
@@ -33,13 +32,18 @@ def login(request: Request, redis=Depends(get_redis)):
         SERVICE,
         {'show_dialog': SHOW_DIALOG}
     )
-    return {'url': auth_url, 'jw_token': jw_token}
+    return {'url': auth_url}
 
 
-@router.get('/spotify/callback', tags=['Authorization'])
+@router.get('/spotify/callback', response_model=CallbackResponse, tags=['Authorization'])
 def callback(code: str, state: str, redis=Depends(get_redis)):
     token_url = 'https://accounts.spotify.com/api/token'
+    jw_token = create_access_token(
+        subject=str(uuid.uuid4()),
+        expires_delta=timedelta(hours=1)
+    )
     return process_oauth_callback(
+        jw_token,
         code,
         state,
         SERVICE,

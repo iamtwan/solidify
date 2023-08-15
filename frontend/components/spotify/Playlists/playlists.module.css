@@ -1,0 +1,113 @@
+@font-face {
+  font-family: 'download';
+  font-style: normal;
+  font-weight: 100 700;
+  src: url('/download.woff2') format('woff2'); /* Adjust the file format if needed */
+}
+
+@font-face {
+  font-family: 'upload';
+  font-style: normal;
+  font-weight: 100 700;
+  src: url('/upload.woff2') format('woff2'); /* Adjust the file format if needed */
+}
+
+.download {
+  font-family: 'download';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  margin: 0px 5px 0px 5px;
+
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 48;
+}
+
+.download:hover {
+  cursor: pointer;
+  background-color: #e0e0e0;
+}
+
+.upload {
+  font-family: 'upload';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 48
+}
+
+.upload:hover {
+  cursor: pointer;
+  background-color: #e0e0e0; 
+}
+
+.playlists-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.playlists-inner-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.playlists-options {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid;
+  margin-bottom: 5px;
+}
+
+.login-button {
+  padding: 10px 20px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  align-self: center;
+  margin-top: 5px;
+}
+
+@media screen and (max-width: 500px) {
+  .playlists-container {
+    max-width: 400px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .playlists-container {
+    width: 300px;
+  }
+}
