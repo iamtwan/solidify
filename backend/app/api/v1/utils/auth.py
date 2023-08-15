@@ -1,3 +1,4 @@
+from ..services.redis import RedisHandler
 from urllib.parse import urlencode
 import os
 
@@ -40,21 +41,35 @@ def store_refreshed_tokens(
     old_jwt: str,
     new_jwt: str,
     service_name: str
-) -> None:
-    refresh_token = redis.get(f'{old_jwt}_{service_name}_refresh_token')
+) -> str:
+    redis_handler = RedisHandler()
+    refresh_token = redis_handler.get_redis_value(
+        redis,
+        f'{old_jwt}_{service_name}_refresh_token'
+    )
     if refresh_token is not None:
         refresh_token = refresh_token.decode('utf-8')
         new_access_token = service.refresh_access_token()
         if new_access_token is not None:
-            redis.set(
+            redis_handler.set_redis(
+                redis,
                 f'{new_jwt}_{service_name}_access_token',
-                new_access_token, ex=3600
+                new_access_token,
+                3600
             )
-            redis.delete(f'{old_jwt}_{service_name}_access_token')
-            redis.set(
+            redis_handler.delete_redis(
+                redis,
+                f'{old_jwt}_{service_name}_access_token'
+            )
+            redis_handler.set_redis(
+                redis,
                 f'{new_jwt}_{service_name}_refresh_token',
-                refresh_token, ex=3600
+                refresh_token,
+                3600
             )
-            redis.delete(f'{old_jwt}_{service_name}_refresh_token')
+            redis_handler.delete_redis(
+                redis,
+                f'{old_jwt}_{service_name}_refresh_token'
+            )
             return f'{service_name} session refreshed'
         return f'{service_name} session failed to refresh'

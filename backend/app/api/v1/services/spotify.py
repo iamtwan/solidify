@@ -3,8 +3,9 @@ import base64
 import csv
 import io
 
-from typing import Optional, Any
+from typing import Optional, Any, Tuple
 from ..dependencies import get_redis
+from ..services.redis import RedisHandler
 
 
 class SpotifyService:
@@ -59,31 +60,33 @@ class SpotifyService:
 
         return self.token
 
-    def get_all_playlists(self) -> dict:
-        fields = 'items(id,name,public)'
-        url = f'{self.base_url}/me/playlists?fields={fields}'
+    def get_all_playlists(self, offset: int = 0, limit: int = 20) -> Tuple[dict, Optional[str]]:
+        fields = 'items(id,name,public),next'
+        url = f'{self.base_url}/me/playlists?fields={fields}&offset={offset}&limit={limit}'
 
         response = requests.get(url, headers=self.headers)
         response.raise_for_status()
 
-        return response.json()
+        response_data = response.json()
+
+        return response_data['items'], response_data['next']
 
     def playlist_to_csv(self, playlist: dict) -> str:
         output = io.StringIO()
-        fieldnames = ["track_name", "artist_name", "album_name"]
+        fieldnames = ['track_name', 'artist_name', 'album_name']
         writer = csv.DictWriter(output, fieldnames=fieldnames)
 
-        writer.writerow({"track_name": "Total Tracks",
-                        "artist_name": playlist['tracks']['total'], "album_name": ""})
-        writer.writerow({"track_name": "Playlist Name",
-                        "artist_name": playlist['name'], "album_name": ""})
+        writer.writerow({'track_name': 'Total Tracks',
+                        'artist_name': playlist['tracks']['total'], 'album_name': ''})
+        writer.writerow({'track_name': 'Playlist Name',
+                        'artist_name': playlist['name'], 'album_name': ''})
         writer.writeheader()
         for item in playlist['tracks']['items']:
             track = item['track']
             writer.writerow({
-                "track_name": track['name'],
-                "artist_name": ', '.join(artist['name'] for artist in track['artists']),
-                "album_name": track['album']['name'],
+                'track_name': track['name'],
+                'artist_name': ', '.join(artist['name'] for artist in track['artists']),
+                'album_name': track['album']['name'],
             })
 
         return output.getvalue()
@@ -91,7 +94,8 @@ class SpotifyService:
     def cache_playlist(self, playlist_id: str, playlist: dict) -> None:
         csv_string = self.playlist_to_csv(playlist)
         redis = get_redis()
-        redis.set(f'{playlist_id}_csv', csv_string, ex=3600)
+        redis_handler = RedisHandler()
+        redis_handler.set_redis(redis, f'{playlist_id}_csv', csv_string, 3600)
 
     def get_protected_playlist(self, playlist_id: str) -> Any:
         fields = 'name,tracks.total,tracks.items(track(name,artists(name),album(name)))'

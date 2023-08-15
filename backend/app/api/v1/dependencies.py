@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status, Depends, Request
 from .utils.auth import check_env_var
+from .services.redis import RedisHandler
 import redis
 
 
@@ -63,9 +64,12 @@ def get_user_service(service, jw_token: str, redis, refresh: bool = False):
 
     service_data = services[service]
     service_class = service_data['service']
+    redis_handler = RedisHandler()
 
-    access_token_raw = redis.get(f'{jw_token}_{service}_access_token')
-    refresh_token_raw = redis.get(f'{jw_token}_{service}_refresh_token')
+    access_token_raw = redis_handler.get_redis_value(
+        redis, f'{jw_token}_{service}_access_token')
+    refresh_token_raw = redis_handler.get_redis_value(
+        redis, f'{jw_token}_{service}_refresh_token')
 
     if access_token_raw is None or refresh_token_raw is None:
         if refresh:

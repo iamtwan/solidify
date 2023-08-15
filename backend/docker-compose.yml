@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   web:
+    container_name: backend
     build: .
     env_file:
       - ./app/.env
@@ -10,6 +11,7 @@ services:
     depends_on:
       - redis
   redis:
+    container_name: backend_redis
     image: "redis:alpine"
     ports:
       - "6379:6379"
