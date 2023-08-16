@@ -38,12 +38,12 @@ def login(redis=Depends(get_redis)):
 @router.get('/spotify/callback', response_model=CallbackResponse, tags=['Authorization'])
 def callback(code: str, state: str, redis=Depends(get_redis)):
     token_url = 'https://accounts.spotify.com/api/token'
-    jw_token = create_access_token(
+    jwt = create_access_token(
         subject=str(uuid.uuid4()),
         expires_delta=timedelta(hours=1)
     )
     return process_oauth_callback(
-        jw_token,
+        jwt,
         code,
         state,
         SERVICE,
