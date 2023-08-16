@@ -4,13 +4,22 @@ import PlaylistInterface from '../PlaylistInterface';
 import styles from './playlist.module.css';
 import playlistsStyles from '../Playlists/playlists.module.css';
 import ReactLoading from 'react-loading';
-
-export default function Playlist({ playlist, checked, isUploading, handleCheckboxChange }: {
+import { downloadPlaylist} from '@/services/api';
+export default function Playlist({ playlist, checked, isUploading, handleCheckboxChange, upload }: {
     playlist: PlaylistInterface,
     checked: boolean,
     isUploading: boolean,
-    handleCheckboxChange: Function
+    handleCheckboxChange: Function,
+    upload: Function
 }) {
+  const download = async (id: string) => {
+    try {
+      await downloadPlaylist(id, true);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return <div className={styles['playlist-container']}>
     <label className={styles['playlist-label']}>
       <input type='checkbox' checked={checked} onChange={() => handleCheckboxChange(playlist)}/>
@@ -18,8 +27,8 @@ export default function Playlist({ playlist, checked, isUploading, handleCheckbo
     </label>
 
     <div className={styles['upload-download']}>
-      <span className={playlistsStyles.download}>download</span>
-      <span className={playlistsStyles.upload}>{isUploading ? <ReactLoading type='spin' color='grey' width={24} height={24} /> : 'upload'}</span>
+      <span className={playlistsStyles.download} onClick={() => download(playlist.id)}>download</span>
+      <span className={playlistsStyles.upload} onClick={() => upload(playlist.id)}>{isUploading ? <ReactLoading type='spin' color='grey' width={24} height={24} /> : 'upload'}</span>
     </div>
   </div>
 }

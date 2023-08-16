@@ -90,6 +90,23 @@ export default function Playlists({ googleToken }: {
     }
   }
 
+  const upload = async (id: string) => {
+    try {
+      setPlaylistIsUploading(id, true);
+      await uploadPlaylist(id);
+    } catch (error) {
+      console.log(error);
+
+      try {
+        await login('http://127.0.0.1:8000/v1/auth/google/login');
+      } catch(error) {
+        console.log(error);
+      } 
+    } finally {
+      setPlaylistIsUploading(id, false);
+    }
+  }
+
   const uploadSelected = async () => {
     const playlists = [];
 
@@ -97,24 +114,8 @@ export default function Playlists({ googleToken }: {
       if (!playlistInfo.checked) continue;
 
       playlists.push(id);
-
-      try {
-        setPlaylistIsUploading(id, true);
-        await uploadPlaylist(id);
-      } catch (error) {
-        console.log(error);
-
-        try {
-          setPlaylistsToUpload(playlists);
-          await login('http://127.0.0.1:8000/v1/auth/google/login');
-        } catch(error) {
-          console.log(error);
-        } 
-        
-        break;
-      } finally {
-        setPlaylistIsUploading(id, false);
-      }
+      setPlaylistsToUpload(playlists);
+      await upload(id);
     }
   }
 
@@ -177,6 +178,7 @@ export default function Playlists({ googleToken }: {
             checked={checked}
             isUploading={isUploading}
             handleCheckboxChange={handleCheckboxChange}
+            upload={upload}
           /> 
         })}
 

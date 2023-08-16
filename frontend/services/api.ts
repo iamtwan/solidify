@@ -68,7 +68,7 @@ export const downloadPlaylist = async (id: string, isPrivate: boolean) => {
 }
 
 export const uploadPlaylist = async (id: string) => {
-    await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`); // used to cache playlist in redis
+    await fetchItems(id, true);
 
     const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
       method: 'POST',
