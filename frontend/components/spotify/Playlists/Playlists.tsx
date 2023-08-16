@@ -7,6 +7,7 @@ import { fetchPlaylists, downloadPlaylist, uploadPlaylist, login } from "@/servi
 import styles from './playlists.module.css';
 import playlistStyles from '../Playlist/playlist.module.css';
 import ReactLoading from 'react-loading';
+import { Tooltip } from "react-tooltip";
 
 export default function Playlists({ googleToken }: {
   googleToken: string
@@ -158,8 +159,22 @@ export default function Playlists({ googleToken }: {
         <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
       
         <div className={playlistStyles['upload-download']}>
-          <span onClick={downloadSelected} className={styles.download}>download</span>
-          <span onClick={uploadSelected} className={styles.upload}>upload</span>
+        <span 
+          className={styles.download} 
+          onClick={downloadSelected} 
+          data-tooltip-id='download' 
+          data-tooltip-content='Download'>
+            download
+        </span>
+        <Tooltip id="download" />
+        <span 
+          className={styles.upload} 
+          onClick={uploadSelected}
+          data-tooltip-id='upload' 
+          data-tooltip-content='Upload'>
+            upload
+        </span>
+        <Tooltip id="upload" />
         </div>
       </div>
 

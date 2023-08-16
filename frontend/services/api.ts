@@ -24,7 +24,7 @@ export const fetchPlaylists = (mounted: boolean, pageIndex: number) => {
     return {
         data,
         error,
-        isLoading: mounted ? isLoading : true,
+        isLoading: mounted ? isLoading : true
     };
 }
 
