@@ -6,7 +6,7 @@ import traceback
 
 
 def process_oauth_callback(
-        jw_token,
+        jwt,
         code,
         state,
         SERVICE,
@@ -49,18 +49,18 @@ def process_oauth_callback(
 
         redis_handler.set_redis(
             redis,
-            f'{jw_token}_{SERVICE}_access_token',
+            f'{jwt}_{SERVICE}_access_token',
             tokens['access_token'],
             expiry_time
         )
         redis_handler.set_redis(
             redis,
-            f'{jw_token}_{SERVICE}_refresh_token',
+            f'{jwt}_{SERVICE}_refresh_token',
             tokens['refresh_token'],
             expiry_time
         )
 
-        return {'status': f'{SERVICE} successfully connected', 'jw_token': jw_token}
+        return {'status': f'{SERVICE} successfully connected', 'jwt': jwt}
 
     except requests.exceptions.RequestException as exception:
         print(traceback.format_exc())
