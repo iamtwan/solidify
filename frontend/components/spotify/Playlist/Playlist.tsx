@@ -2,9 +2,7 @@
 
 import PlaylistInterface from '../PlaylistInterface';
 import styles from './playlist.module.css';
-import playlistsStyles from '../Playlists/playlists.module.css';
 import { downloadPlaylist} from '@/services/api';
-import { Tooltip } from 'react-tooltip'
 import DownloadButton from '../DownloadButton';
 import UploadButton from '../UploadButton';
 
