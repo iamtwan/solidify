@@ -12,5 +12,5 @@ class LoginResponse(BaseModel):
 
 
 class CallbackResponse(BaseModel):
-    jwt: str
     status: str
+    jwt: str
