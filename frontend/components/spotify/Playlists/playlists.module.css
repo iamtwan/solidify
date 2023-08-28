@@ -88,6 +88,16 @@
   margin-bottom: 5px;
 }
 
+.playlists-loading {
+  align-self: center;
+  margin-top: 15px;
+}
+
+.playlists-list {
+  display: flex;
+  flex-direction: column;
+}
+
 .login-button {
   padding: 10px 20px;
   background-color: black;
@@ -98,6 +108,32 @@
   cursor: pointer;
   align-self: center;
   margin-top: 5px;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+}
+
+.pagination-button {
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 20px;
+  margin: 5px;
+}
+
+.pagination-button:disabled {
+  background-color: grey;
+  cursor: default;
 }
 
 @media screen and (max-width: 500px) {

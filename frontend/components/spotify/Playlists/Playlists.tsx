@@ -6,6 +6,9 @@ import { useState, useEffect } from "react";
 import { fetchPlaylists, downloadPlaylist, uploadPlaylist, login } from "@/services/api";
 import styles from './playlists.module.css';
 import playlistStyles from '../Playlist/playlist.module.css';
+import ReactLoading from 'react-loading';
+import DownloadButton from "../DownloadButton";
+import UploadButton from "../UploadButton";
 
 export default function Playlists({ googleToken }: {
   googleToken: string
@@ -18,8 +21,9 @@ export default function Playlists({ googleToken }: {
   const [checkedPlaylists, setCheckedPlaylists] = useState<{ [key: string]: PlaylistInfo }>({});
   const [playlistsToUpload, setPlaylistsToUpload] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [pageIndex, setPageIndex] = useState(0);
 
-  const { data, error, isLoading } = fetchPlaylists(mounted);
+  const { data, error, isLoading } = fetchPlaylists(mounted, pageIndex);
 
   useEffect(() => {
     if (data) {
@@ -34,7 +38,7 @@ export default function Playlists({ googleToken }: {
   }
   }, [data]);
 
-  useEffect(() => {    
+  useEffect(() => {  
     const uploadPlaylists = async () => {
       for (let id of playlistsToUpload) {
         try {
@@ -88,31 +92,29 @@ export default function Playlists({ googleToken }: {
     }
   }
 
-  const uploadSelected = async () => {
-    const playlists = [];
-
-    for (const [id, playlistInfo] of Object.entries(checkedPlaylists)) {
-      if (!playlistInfo.checked) continue;
-
-      playlists.push(id);
+  const upload = async (id: string) => {
+    try {
+      setPlaylistsToUpload([...playlistsToUpload, id]);
+      setPlaylistIsUploading(id, true);
+      await uploadPlaylist(id);
+      setPlaylistIsUploading(id, false);
+    } catch (error) {
+      console.log(error);
 
       try {
-        setPlaylistIsUploading(id, true);
-        await uploadPlaylist(id);
-      } catch (error) {
+        await login('http://127.0.0.1:8000/v1/auth/google/login');
+      } catch(error) {
         console.log(error);
+      } 
+    } finally {
+      setPlaylistIsUploading(id, false);
+    }
+  }
 
-        try {
-          setPlaylistsToUpload(playlists);
-          await login('http://127.0.0.1:8000/v1/auth/google/login');
-        } catch(error) {
-          console.log(error);
-        } 
-        
-        break;
-      } finally {
-        setPlaylistIsUploading(id, false);
-      }
+  const uploadSelected = async () => {
+    for (const [id, playlistInfo] of Object.entries(checkedPlaylists)) {
+      if (!playlistInfo.checked) continue;
+      await upload(id);
     }
   }
 
@@ -158,24 +160,43 @@ export default function Playlists({ googleToken }: {
         <input type='checkbox' checked={isAnyPlaylistChecked()} onChange={handleSelectAll} />
       
         <div className={playlistStyles['upload-download']}>
-          <span onClick={downloadSelected} className={styles.download}>download</span>
-          <span onClick={uploadSelected} className={styles.upload}>upload</span>
+          <DownloadButton onClick={downloadSelected} />
+          <UploadButton onClick={uploadSelected} />
         </div>
       </div>
-      
-      {error ? <button className={styles['login-button']} onClick={spotifyLogin}>Spotify login</button> : isLoading ? 
-      <div className={styles['login-button']}>Loading...</div> : 
-      data.playlists.map((playlist: PlaylistInterface) => {
-        const checked = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked) || false;
-        const isUploading = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading) || false;
 
-        return <Playlist key={playlist.id} 
-          playlist={playlist} 
-          checked={checked}
-          isUploading={isUploading}
-          handleCheckboxChange={handleCheckboxChange}
-        /> 
-    })}
+      {error ? <button className={styles['login-button']} onClick={spotifyLogin}>Spotify login</button> : !data ? 
+      <div className={styles['playlists-loading']}><ReactLoading type='spin' color='grey' width={30} height={30}/></div> : 
+      <div className={styles['playlists-list']}>
+        {data.playlists.map((playlist: PlaylistInterface) => {
+          const checked = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].checked) || false;
+          const isUploading = (checkedPlaylists[playlist.id] && checkedPlaylists[playlist.id].isUploading) || false;
+
+          return <Playlist key={playlist.id} 
+            playlist={playlist} 
+            checked={checked}
+            isUploading={isUploading}
+            handleCheckboxChange={handleCheckboxChange}
+            upload={upload}
+          /> 
+        })}
+
+        <div className={styles['pagination-container']}>
+          <button 
+            disabled={pageIndex <= 0} 
+            onClick={() => setPageIndex(pageIndex - 1)}
+            className={styles['pagination-button']}>
+              Prev
+          </button>
+          <button 
+            disabled={!data.next} 
+            onClick={() => setPageIndex(pageIndex + 1)}
+            className={styles['pagination-button']}>
+              {isLoading ? <ReactLoading type='spin' color='grey' width={10} height={13}/> : 'Next'}
+          </button>
+        </div>
+      </div>
+      }
     </div>
   </div>
 }

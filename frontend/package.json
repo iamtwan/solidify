@@ -20,6 +20,9 @@
     "react-csv": "^2.2.2",
     "react-dom": "18.2.0",
     "react-google-button": "^0.7.2",
+    "react-loading": "^2.0.3",
+    "react-loading-icons": "^1.1.0",
+    "react-tooltip": "^5.21.1",
     "swr": "^2.2.0",
     "typescript": "5.1.6"
   },

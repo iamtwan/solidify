@@ -53,6 +53,7 @@ def process_oauth_callback(
             tokens['access_token'],
             expiry_time
         )
+
         redis_handler.set_redis(
             redis,
             f'{jwt}_{SERVICE}_refresh_token',

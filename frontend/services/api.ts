@@ -1,4 +1,4 @@
-import useSWRImmutable from 'swr/immutable';
+import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import Papa from 'papaparse';
 
@@ -15,21 +15,21 @@ const fetcher = async (url: string, { arg } : { arg: string }) => {
     return await response.json();
 }
 
-export const fetchPlaylists = (mounted: boolean) => {
+export const fetchPlaylists = (mounted: boolean, pageIndex: number) => {
     const accessToken = (mounted && localStorage.getItem('spotify_token')) || '';
 
-    const { data, error, isLoading } = useSWRImmutable(mounted ? 'http://127.0.0.1:8000/v1/spotify/all' : null, 
-    url => fetcher(url, { arg: accessToken} ));
+    const { data, error, isLoading } = useSWR(mounted ? `http://127.0.0.1:8000/v1/spotify/playlists/all?offset=${pageIndex}` : null, 
+    url => fetcher(url, { arg: accessToken} ), { keepPreviousData: true });
 
     return {
         data,
         error,
-        isLoading: mounted ? isLoading : true,
+        isLoading: mounted ? isLoading : true
     };
 }
 
 export const mutatePlaylists = () => {
-    const { trigger, isMutating } = useSWRMutation('http://127.0.0.1:8000/v1/spotify/all', fetcher);
+    const { trigger, isMutating } = useSWRMutation('http://127.0.0.1:8000/v1/spotify/playlists/all', fetcher);
 
     return { 
         trigger,
@@ -68,12 +68,14 @@ export const downloadPlaylist = async (id: string, isPrivate: boolean) => {
 }
 
 export const uploadPlaylist = async (id: string) => {
-    await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`); // used to cache playlist in redis
+    await fetchItems(id, true);
+
+    console.log(localStorage.getItem('google_token'));
 
     const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('google-token')}`
+        'Authorization': `Bearer ${localStorage.getItem('google_token')}`
       }
     });
 
