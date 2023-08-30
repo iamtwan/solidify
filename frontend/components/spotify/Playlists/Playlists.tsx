@@ -9,8 +9,7 @@ import playlistStyles from '../Playlist/playlist.module.css';
 import ReactLoading from 'react-loading';
 import DownloadButton from "../DownloadButton";
 import UploadButton from "../UploadButton";
-
-const BACKEND_URL = process.env.BACKEND_URL;
+import { BACKEND_URL } from '@/services/apiConfig';
 
 export default function Playlists({ googleToken }: {
   googleToken: string

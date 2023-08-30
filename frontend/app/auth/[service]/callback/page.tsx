@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-
-const BACKEND_URL = process.env.BACKEND_URL;
+import { BACKEND_URL } from '@/services/apiConfig';
 
 export default function Page({
     params,
