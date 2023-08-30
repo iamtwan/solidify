@@ -4,9 +4,13 @@ from .services.redis import RedisHandler
 import redis
 
 
+REDIS_HOST = check_env_var('REDIS_HOST', 'redis')
+REDIS_PORT = int(check_env_var('REDIS_PORT', '6379'))
+pool = redis.ConnectionPool(host=REDIS_HOST, port=REDIS_PORT, db=0)
+
+
 def get_redis():
-    redis_host = check_env_var('REDIS_HOST', 'redis')
-    return redis.Redis(host=redis_host, port=6379, db=0)
+    return redis.Redis(connection_pool=pool)
 
 
 def get_spotify_service():
