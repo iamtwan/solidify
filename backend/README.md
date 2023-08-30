@@ -22,7 +22,7 @@ These instructions will guide you through setting up the backend component on yo
 
 ### Environment Configuration
 
-Create a `.env` file in the backend `app` root directory with the following variables (ensure you insert your own credentials):
+Create a `.env` file in the backend `app` root directory with the following variables (ensure you insert your own credentials and or update your own values if you are deploying):
 
 - SECRET_KEY=`run openssl rand -hex 32`
 - SPOTIFY_CLIENT_ID=your_spotify_client_id
@@ -31,8 +31,9 @@ Create a `.env` file in the backend `app` root directory with the following vari
 - GOOGLE_CLIENT_ID=your_google_client_id
 - GOOGLE_CLIENT_SECRET=your_google_client_secret
 - GOOGLE_REDIRECT_URI=localhost:3000/auth/google/callback
-- REDIS_URL=your_redis_connection_url
 - REDIS_HOST=redis (or 'localhost' for local development)
+- REDIS_PORT=6379 (default port)
+- FRONT_ORIGIN=http://localhost:3000
 
 ### Installation
 
