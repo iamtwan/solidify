@@ -1,8 +1,7 @@
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import Papa from 'papaparse';
-
-const BACKEND_URL = process.env.BACKEND_URL;
+import { BACKEND_URL } from './apiConfig';
 
 const fetcher = async (url: string, { arg } : { arg: string }) => {
     const headers: Headers = new Headers();
