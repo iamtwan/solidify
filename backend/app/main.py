@@ -1,18 +1,18 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .api.v1.routes import spotify, spotify_auth, google_auth, google
-from contextlib import asynccontextmanager
 from .api.v1.utils.auth import check_env_var
 from dotenv import load_dotenv
 from .api.v1.dependencies import get_spotify_service, get_redis
-from redis.exceptions import ConnectionError
 
+
+app = FastAPI()
 
 load_dotenv()
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
+@app.on_event("startup")
+async def startup_event():
     required_env_vars = [
         'SECRET_KEY',
         'SPOTIFY_CLIENT_ID',
@@ -21,7 +21,9 @@ async def lifespan(app: FastAPI):
         'GOOGLE_CLIENT_ID',
         'GOOGLE_CLIENT_SECRET',
         'GOOGLE_REDIRECT_URI',
-        'REDIS_HOST'
+        'REDIS_PORT',
+        'REDIS_HOST',
+        'FRONT_ORIGIN'
     ]
 
     for var in required_env_vars:
@@ -32,15 +34,15 @@ async def lifespan(app: FastAPI):
         if redis.ping():
             print('Redis successfully connected')
     except ConnectionError:
-        raise HTTPException(status_code=500, detail='Redis not connected')
-    yield
+        print('Unable to connect to Redis at startup')
 
-app = FastAPI(lifespan=lifespan)
 
 # update for production
+front_origin = check_env_var('FRONT_ORIGIN')
 origins = [
     'http://localhost:3000',
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3000',
+    front_origin
 ]
 
 # update for production
