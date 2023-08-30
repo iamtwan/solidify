@@ -2,6 +2,8 @@ import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import Papa from 'papaparse';
 
+const BACKEND_URL = process.env.BACKEND_URL;
+
 const fetcher = async (url: string, { arg } : { arg: string }) => {
     const headers: Headers = new Headers();
     headers.set('Authorization', `Bearer ${arg}`);
@@ -18,7 +20,7 @@ const fetcher = async (url: string, { arg } : { arg: string }) => {
 export const fetchPlaylists = (mounted: boolean, pageIndex: number) => {
     const accessToken = (mounted && localStorage.getItem('spotify_token')) || '';
 
-    const { data, error, isLoading } = useSWR(mounted ? `http://127.0.0.1:8000/v1/spotify/playlists/all?offset=${pageIndex}` : null, 
+    const { data, error, isLoading } = useSWR(mounted ? `${BACKEND_URL}/v1/spotify/playlists/all?offset=${pageIndex}` : null, 
     url => fetcher(url, { arg: accessToken} ), { keepPreviousData: true });
 
     return {
@@ -29,7 +31,7 @@ export const fetchPlaylists = (mounted: boolean, pageIndex: number) => {
 }
 
 export const mutatePlaylists = () => {
-    const { trigger, isMutating } = useSWRMutation('http://127.0.0.1:8000/v1/spotify/playlists/all', fetcher);
+    const { trigger, isMutating } = useSWRMutation(`${BACKEND_URL}/v1/spotify/playlists/all`, fetcher);
 
     return { 
         trigger,
@@ -72,7 +74,7 @@ export const uploadPlaylist = async (id: string) => {
 
     console.log(localStorage.getItem('google_token'));
 
-    const response = await fetch(`http://127.0.0.1:8000/v1/google/upload/${id}`, {
+    const response = await fetch(`${BACKEND_URL}/v1/google/upload/${id}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('google_token')}`
@@ -91,13 +93,13 @@ const fetchItems = async (id: string, isPrivate: boolean) => {
         let response;
 
         if (isPrivate) {
-            response = await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/private/${id}`, {
+            response = await fetch(`${BACKEND_URL}/v1/spotify/playlists/private/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('spotify_token')}`
                 }
             });
         } else {
-            response = await fetch(`http://127.0.0.1:8000/v1/spotify/playlists/${id}`);
+            response = await fetch(`${BACKEND_URL}/v1/spotify/playlists/${id}`);
         }
 
         return await response.json();

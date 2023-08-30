@@ -10,6 +10,8 @@ import ReactLoading from 'react-loading';
 import DownloadButton from "../DownloadButton";
 import UploadButton from "../UploadButton";
 
+const BACKEND_URL = process.env.BACKEND_URL;
+
 export default function Playlists({ googleToken }: {
   googleToken: string
 }) {
@@ -102,7 +104,7 @@ export default function Playlists({ googleToken }: {
       console.log(error);
 
       try {
-        await login('http://127.0.0.1:8000/v1/auth/google/login');
+        await login(`${BACKEND_URL}/v1/auth/google/login`);
       } catch(error) {
         console.log(error);
       } 
@@ -152,7 +154,7 @@ export default function Playlists({ googleToken }: {
 //   }
 // }
 
-  const spotifyLogin = () => login('http://127.0.0.1:8000/v1/auth/spotify/login');
+  const spotifyLogin = () => login(`${BACKEND_URL}/v1/auth/spotify/login`);
 
   return <div className={styles['playlists-container']}>
     <div className={styles['playlists-inner-container']}>

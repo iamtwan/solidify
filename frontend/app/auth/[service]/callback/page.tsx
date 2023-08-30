@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 
+const BACKEND_URL = process.env.BACKEND_URL;
+
 export default function Page({
     params,
     searchParams
@@ -15,7 +17,7 @@ export default function Page({
             urlParams.append('code', code);
             urlParams.append('state', state);
 
-            const url = new URL(`http://127.0.0.1:8000/v1/auth/${params.service}/callback`);
+            const url = new URL(`${BACKEND_URL}/v1/auth/${params.service}/callback`);
             url.search = urlParams.toString();
 
             const response = await fetch(url);
